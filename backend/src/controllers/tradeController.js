@@ -25,15 +25,18 @@ const createTrade = async (req, res, next) => {
 // Update trade
 const updateTrade = async (req, res, next) => {
   try {
-    const trade = await Trade.findOneAndUpdate(
-      { _id: req.params.id, userId: req.user.id },
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const trade = await Trade.findOne({ _id: req.params.id, userId: req.user.id });
     
     if (!trade) {
       return res.status(404).json({ success: false, error: { message: 'Trade not found' } });
     }
+    
+    // Update fields
+    Object.keys(req.body).forEach(key => {
+      trade[key] = req.body[key];
+    });
+
+    await trade.save(); // Triggers pre-save hook for PnL and status
     
     res.json({ success: true, data: trade });
   } catch (error) {
@@ -49,6 +52,49 @@ const deleteTrade = async (req, res, next) => {
       return res.status(404).json({ success: false, error: { message: 'Trade not found' } });
     }
     res.json({ success: true, data: {} });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get trade by ID
+const getTradeById = async (req, res, next) => {
+  try {
+    const trade = await Trade.findOne({ _id: req.params.id, userId: req.user.id });
+    if (!trade) {
+      return res.status(404).json({ success: false, error: { message: 'Trade not found' } });
+    }
+    res.json({ success: true, data: trade });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Close trade
+const closeTrade = async (req, res, next) => {
+  try {
+    const { exitPrice, exitDate } = req.body;
+    
+    if (!exitPrice && exitPrice !== 0) {
+      return res.status(400).json({ success: false, error: { message: 'Exit price is required to close a trade' } });
+    }
+
+    const trade = await Trade.findOne({ _id: req.params.id, userId: req.user.id });
+    
+    if (!trade) {
+      return res.status(404).json({ success: false, error: { message: 'Trade not found' } });
+    }
+    
+    if (trade.status === 'CLOSED') {
+      return res.status(400).json({ success: false, error: { message: 'Trade is already closed' } });
+    }
+
+    trade.exitPrice = Number(exitPrice);
+    trade.exitDate = exitDate || new Date();
+    
+    await trade.save(); // This triggers the pre-save hook for PnL and status
+
+    res.json({ success: true, data: trade });
   } catch (error) {
     next(error);
   }
@@ -83,6 +129,16 @@ const getPortfolioAnalytics = async (req, res, next) => {
       grossProfit: 0,
       grossLoss: 0
     };
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const todayStats = await Trade.aggregate([
+      { $match: { userId: req.user._id, status: 'CLOSED', exitDate: { $gte: startOfDay } } },
+      { $group: { _id: null, todayPnL: { $sum: '$pnl' } } }
+    ]);
+    statsData.todayPnL = todayStats[0] ? todayStats[0].todayPnL : 0;
+    
+    statsData.openPositionsCount = await Trade.countDocuments({ userId: req.user._id, status: 'OPEN' });
 
     statsData.winRate = statsData.totalTrades > 0 ? (statsData.winningTrades / statsData.totalTrades) * 100 : 0;
     statsData.averageWin = statsData.winningTrades > 0 ? statsData.grossProfit / statsData.winningTrades : 0;
@@ -188,9 +244,11 @@ const getPerformanceInsight = async (req, res, next) => {
 
 module.exports = {
   getTrades,
+  getTradeById,
   createTrade,
   updateTrade,
   deleteTrade,
+  closeTrade,
   getPortfolioAnalytics,
   getPerformanceInsight
 };

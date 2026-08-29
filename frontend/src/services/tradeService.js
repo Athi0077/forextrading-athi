@@ -37,3 +37,16 @@ export const getPerformanceInsight = async () => {
   const result = await apiCall('/trades/insight');
   return result.data;
 };
+
+export const getTradeById = async (id) => {
+  const result = await apiCall(`/trades/${id}`);
+  return result.data;
+};
+
+export const closeTrade = async (id, exitData) => {
+  const result = await apiCall(`/trades/${id}/close`, {
+    method: 'PUT',
+    body: JSON.stringify(exitData)
+  });
+  return result.data;
+};

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, TrendingUp, TrendingDown, Edit2, Trash2, X, Check } from 'lucide-react';
-import { getTrades, createTrade, updateTrade, deleteTrade } from '../services/tradeService';
+import { Plus, Search, Filter, TrendingUp, TrendingDown, Edit2, Trash2, Check } from 'lucide-react';
+import { getTrades, createTrade, updateTrade, deleteTrade, closeTrade } from '../services/tradeService';
+import TradeModal from '../components/TradeModal';
+import CloseTradeModal from '../components/CloseTradeModal';
 
 export default function TradeJournalPage() {
   const [trades, setTrades] = useState([]);
@@ -8,21 +10,9 @@ export default function TradeJournalPage() {
   const [searchQuery, setSearchQuery] = useState('');
   
   // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentTrade, setCurrentTrade] = useState(null); // null = add, object = edit
-
-  // Form state
-  const [formData, setFormData] = useState({
-    pair: 'EUR/USD',
-    type: 'BUY',
-    entryPrice: '',
-    exitPrice: '',
-    lotSize: '1.00',
-    stopLoss: '',
-    takeProfit: '',
-    notes: '',
-    status: 'OPEN'
-  });
+  const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [currentTrade, setCurrentTrade] = useState(null); // null = add, object = edit/close
 
   const fetchTrades = async () => {
     try {
@@ -40,43 +30,21 @@ export default function TradeJournalPage() {
     fetchTrades();
   }, []);
 
-  const handleOpenModal = (trade = null) => {
-    if (trade) {
-      setCurrentTrade(trade);
-      setFormData({
-        pair: trade.pair,
-        type: trade.type,
-        entryPrice: trade.entryPrice,
-        exitPrice: trade.exitPrice || '',
-        lotSize: trade.lotSize,
-        stopLoss: trade.stopLoss || '',
-        takeProfit: trade.takeProfit || '',
-        notes: trade.notes || '',
-        status: trade.status
-      });
-    } else {
-      setCurrentTrade(null);
-      setFormData({
-        pair: 'EUR/USD',
-        type: 'BUY',
-        entryPrice: '',
-        exitPrice: '',
-        lotSize: '1.00',
-        stopLoss: '',
-        takeProfit: '',
-        notes: '',
-        status: 'OPEN'
-      });
-    }
-    setIsModalOpen(true);
+  const handleOpenTradeModal = (trade = null) => {
+    setCurrentTrade(trade);
+    setIsTradeModalOpen(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleOpenCloseModal = (trade) => {
+    setCurrentTrade(trade);
+    setIsCloseModalOpen(true);
+  };
+
+  const handleTradeSubmit = async (formData) => {
     try {
       const payload = { ...formData };
       
-      // Auto-set date if marking as closed
+      // Auto-set date if marking as closed manually in edit mode
       if (payload.exitPrice && payload.status === 'OPEN') {
         payload.exitDate = new Date();
       }
@@ -86,7 +54,7 @@ export default function TradeJournalPage() {
       } else {
         await createTrade(payload);
       }
-      setIsModalOpen(false);
+      setIsTradeModalOpen(false);
       fetchTrades();
     } catch (err) {
       console.error(err);
@@ -105,19 +73,14 @@ export default function TradeJournalPage() {
     }
   };
 
-  const handleCloseTrade = async (trade) => {
-    const exitPrice = prompt(`Enter exit price for ${trade.pair}:`);
-    if (exitPrice) {
-      try {
-        await updateTrade(trade._id, { 
-          exitPrice: parseFloat(exitPrice), 
-          exitDate: new Date(),
-          status: 'CLOSED'
-        });
-        fetchTrades();
-      } catch (err) {
-        console.error(err);
-      }
+  const handleCloseSubmit = async (id, exitData) => {
+    try {
+      await closeTrade(id, exitData);
+      setIsCloseModalOpen(false);
+      fetchTrades();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to close trade.');
     }
   };
 
@@ -129,27 +92,6 @@ export default function TradeJournalPage() {
   const winningTrades = closedTrades.filter(t => t.pnl > 0).length;
   const losingTrades = closedTrades.filter(t => t.pnl < 0).length;
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
-
-  // Real-time risk/reward calculation for modal
-  const calcRiskReward = () => {
-    const ep = parseFloat(formData.entryPrice);
-    const sl = parseFloat(formData.stopLoss);
-    const tp = parseFloat(formData.takeProfit);
-    const lot = parseFloat(formData.lotSize);
-    
-    if (isNaN(ep) || isNaN(sl) || isNaN(tp) || isNaN(lot)) return { risk: 0, reward: 0, rr: '0.0' };
-    
-    const pipValue = 10;
-    const riskDiff = Math.abs(ep - sl);
-    const rewardDiff = Math.abs(tp - ep);
-    
-    const risk = riskDiff * pipValue * lot * 10;
-    const reward = rewardDiff * pipValue * lot * 10;
-    const rr = riskDiff > 0 ? (rewardDiff / riskDiff).toFixed(2) : '0.0';
-    
-    return { risk, reward, rr };
-  };
-  const { risk, reward, rr } = calcRiskReward();
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 text-zinc-300">
@@ -175,7 +117,7 @@ export default function TradeJournalPage() {
             <Filter className="w-5 h-5 text-zinc-400" />
           </button>
           <button 
-            onClick={() => handleOpenModal()}
+            onClick={() => handleOpenTradeModal()}
             className="flex items-center px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-pink text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4 mr-2" /> Add Trade
@@ -234,7 +176,7 @@ export default function TradeJournalPage() {
                 <tr>
                   <td colSpan="8" className="px-6 py-12 text-center text-zinc-500">
                     <p>No trades found.</p>
-                    <button onClick={() => handleOpenModal()} className="mt-4 text-brand-purple hover:underline">Add your first trade</button>
+                    <button onClick={() => handleOpenTradeModal()} className="mt-4 text-brand-purple hover:underline">Add your first trade</button>
                   </td>
                 </tr>
               ) : (
@@ -266,11 +208,11 @@ export default function TradeJournalPage() {
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       {trade.status === 'OPEN' && (
-                        <button onClick={() => handleCloseTrade(trade)} className="p-1.5 text-zinc-400 hover:text-green-400 bg-zinc-800/50 rounded-lg transition-colors" title="Close Trade">
+                        <button onClick={() => handleOpenCloseModal(trade)} className="p-1.5 text-zinc-400 hover:text-green-400 bg-zinc-800/50 rounded-lg transition-colors" title="Close Trade">
                           <Check className="w-4 h-4" />
                         </button>
                       )}
-                      <button onClick={() => handleOpenModal(trade)} className="p-1.5 text-zinc-400 hover:text-brand-purple bg-zinc-800/50 rounded-lg transition-colors" title="Edit">
+                      <button onClick={() => handleOpenTradeModal(trade)} className="p-1.5 text-zinc-400 hover:text-brand-purple bg-zinc-800/50 rounded-lg transition-colors" title="Edit">
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button onClick={() => handleDelete(trade._id)} className="p-1.5 text-zinc-400 hover:text-red-400 bg-zinc-800/50 rounded-lg transition-colors" title="Delete">
@@ -285,87 +227,20 @@ export default function TradeJournalPage() {
         </div>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0c0c0e] border border-zinc-800/80 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-5 border-b border-zinc-800/50">
-              <h3 className="text-lg font-bold text-white">{currentTrade ? 'Edit Trade' : 'Add New Trade'}</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-white"><X className="w-5 h-5" /></button>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Currency Pair</label>
-                  <input required type="text" value={formData.pair} onChange={e => setFormData({...formData, pair: e.target.value.toUpperCase()})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" placeholder="e.g. EUR/USD" />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Type</label>
-                  <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none">
-                    <option value="BUY">BUY</option>
-                    <option value="SELL">SELL</option>
-                  </select>
-                </div>
-              </div>
+      {/* Modals */}
+      <TradeModal 
+        isOpen={isTradeModalOpen} 
+        onClose={() => setIsTradeModalOpen(false)} 
+        onSubmit={handleTradeSubmit} 
+        initialData={currentTrade} 
+      />
 
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Entry Price</label>
-                  <input required type="number" step="0.00001" value={formData.entryPrice} onChange={e => setFormData({...formData, entryPrice: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Stop Loss</label>
-                  <input type="number" step="0.00001" value={formData.stopLoss} onChange={e => setFormData({...formData, stopLoss: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Take Profit</label>
-                  <input type="number" step="0.00001" value={formData.takeProfit} onChange={e => setFormData({...formData, takeProfit: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Lot Size</label>
-                  <input required type="number" step="0.01" value={formData.lotSize} onChange={e => setFormData({...formData, lotSize: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
-                </div>
-                <div>
-                  <label className="block text-xs text-zinc-400 mb-1">Exit Price (Optional)</label>
-                  <input type="number" step="0.00001" value={formData.exitPrice} onChange={e => setFormData({...formData, exitPrice: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" placeholder="Closes trade if set" />
-                </div>
-              </div>
-              
-              <div className="bg-[#121214] border border-zinc-800/50 rounded-lg p-3 flex justify-between items-center text-sm">
-                <div>
-                  <span className="text-zinc-500 text-xs block">Risk</span>
-                  <span className="text-red-400 font-semibold">${risk.toFixed(2)}</span>
-                </div>
-                <div>
-                  <span className="text-zinc-500 text-xs block">Reward</span>
-                  <span className="text-green-400 font-semibold">${reward.toFixed(2)}</span>
-                </div>
-                <div className="text-right">
-                  <span className="text-zinc-500 text-xs block">Risk/Reward</span>
-                  <span className="text-white font-bold">1:{rr}</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs text-zinc-400 mb-1">Notes</label>
-                <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} rows="2" className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none"></textarea>
-              </div>
-
-              <div className="flex justify-end space-x-3 pt-4 border-t border-zinc-800/50 mt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white transition-colors">Cancel</button>
-                <button type="submit" className="px-6 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-brand-purple to-brand-pink hover:opacity-90 transition-opacity">
-                  {currentTrade ? 'Update Trade' : 'Save Trade'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
+      <CloseTradeModal
+        isOpen={isCloseModalOpen}
+        onClose={() => setIsCloseModalOpen(false)}
+        onSubmit={handleCloseSubmit}
+        trade={currentTrade}
+      />
     </div>
   );
 }

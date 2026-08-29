@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bell, TrendingUp, TrendingDown, Clock, Activity, Zap, ChevronRight, BarChart2, Briefcase, Bot, Eye } from 'lucide-react';
+import { Search, Bell, TrendingUp, TrendingDown, Clock, Activity, Zap, ChevronRight, BarChart2, Briefcase, Bot, Eye, Plus, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { getXauUsdAnalysis } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
 import { createChart } from 'lightweight-charts';
+import { getPortfolioAnalytics, getTrades, createTrade, updateTrade, closeTrade } from '../services/tradeService';
+import TradeModal from '../components/TradeModal';
+import CloseTradeModal from '../components/CloseTradeModal';
 
 export default function HomePage() {
   const { currentUser } = useAuth();
@@ -16,7 +19,15 @@ export default function HomePage() {
     'GBP/USD': { price: 1.2650, change: 0.22 },
   });
   
+  const [analytics, setAnalytics] = useState(null);
+  const [openTrades, setOpenTrades] = useState([]);
+  const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
+  const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [currentTrade, setCurrentTrade] = useState(null);
+
   const chartContainerRef = useRef(null);
+  const chartRef = useRef(null);
+  const lineSeriesRef = useRef(null);
 
   useEffect(() => {
     // Fetch AI Insight
@@ -31,7 +42,22 @@ export default function HomePage() {
         setInsightLoading(false);
       }
     };
+
+    const fetchPortfolioData = async () => {
+      try {
+        const [statsData, tradesData] = await Promise.all([
+          getPortfolioAnalytics(),
+          getTrades()
+        ]);
+        setAnalytics(statsData);
+        setOpenTrades(tradesData?.filter(t => t.status === 'OPEN') || []);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    };
+
     fetchInsight();
+    fetchPortfolioData();
 
     // Connect WebSocket for live prices
     const cleanupSocket = socketClient.onPriceUpdate((data) => {
@@ -55,38 +81,107 @@ export default function HomePage() {
   useEffect(() => {
     if (!chartContainerRef.current) return;
     
-    const chart = createChart(chartContainerRef.current, {
-      layout: {
-        background: { type: 'solid', color: 'transparent' },
-        textColor: '#a1a1aa', // zinc-400
-      },
-      grid: {
-        vertLines: { color: 'rgba(39, 39, 42, 0.5)' }, // zinc-800
-        horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
-      },
-      width: chartContainerRef.current.clientWidth,
-      height: 300,
-    });
+    if (!chartRef.current) {
+      const chart = createChart(chartContainerRef.current, {
+        layout: {
+          background: { type: 'solid', color: 'transparent' },
+          textColor: '#a1a1aa', // zinc-400
+        },
+        grid: {
+          vertLines: { color: 'rgba(39, 39, 42, 0.5)' }, // zinc-800
+          horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
+        },
+        width: chartContainerRef.current.clientWidth,
+        height: 300,
+      });
 
-    const lineSeries = chart.addLineSeries({
-      color: '#a855f7',
-      lineWidth: 2,
-      crosshairMarkerVisible: false,
-    });
-    
-    // Empty data to satisfy "no fake portfolio values"
-    lineSeries.setData([]);
+      const lineSeries = chart.addLineSeries({
+        color: '#a855f7',
+        lineWidth: 2,
+        crosshairMarkerVisible: false,
+      });
+      
+      chartRef.current = chart;
+      lineSeriesRef.current = lineSeries;
 
-    const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-    };
-    window.addEventListener('resize', handleResize);
+      const handleResize = () => {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      };
+      window.addEventListener('resize', handleResize);
 
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      chart.remove();
-    };
-  }, []);
+      // Cleanup
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        chart.remove();
+        chartRef.current = null;
+      };
+    }
+
+    if (analytics?.equityCurve && analytics.equityCurve.length > 0) {
+      const sortedData = [...analytics.equityCurve].sort((a, b) => a.time - b.time);
+      const uniqueData = sortedData.filter((item, index, self) => 
+        index === 0 || item.time !== self[index - 1].time
+      );
+      if (uniqueData.length > 0) {
+        lineSeriesRef.current.setData(uniqueData);
+        chartRef.current.timeScale().fitContent();
+      }
+    } else if (lineSeriesRef.current) {
+      lineSeriesRef.current.setData([]);
+    }
+  }, [analytics]);
+
+  const refreshData = async () => {
+    try {
+      const [statsData, tradesData] = await Promise.all([
+        getPortfolioAnalytics(),
+        getTrades()
+      ]);
+      setAnalytics(statsData);
+      setOpenTrades(tradesData?.filter(t => t.status === 'OPEN') || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleTradeSubmit = async (formData) => {
+    try {
+      const payload = { ...formData };
+      if (payload.exitPrice && payload.status === 'OPEN') {
+        payload.exitDate = new Date();
+      }
+      if (currentTrade) {
+        await updateTrade(currentTrade._id, payload);
+      } else {
+        await createTrade(payload);
+      }
+      setIsTradeModalOpen(false);
+      refreshData();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save trade.');
+    }
+  };
+
+  const handleCloseSubmit = async (id, exitData) => {
+    try {
+      await closeTrade(id, exitData);
+      setIsCloseModalOpen(false);
+      refreshData();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to close trade.');
+    }
+  };
+
+  const getLivePnl = (trade) => {
+    const liveInfo = livePrices[trade.pair];
+    if (!liveInfo) return null;
+    const currentPrice = liveInfo.price;
+    const multiplier = trade.pair.includes('JPY') ? 1000 : 100000;
+    const diff = trade.type === 'BUY' ? (currentPrice - trade.entryPrice) : (trade.entryPrice - currentPrice);
+    return diff * multiplier * trade.lotSize;
+  };
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -107,6 +202,12 @@ export default function HomePage() {
           <div className="flex items-center text-sm text-zinc-400 mt-1 space-x-4">
             <span className="flex items-center"><Clock className="w-4 h-4 mr-1 text-brand-purple" /> London Session</span>
             <span className="flex items-center"><Activity className="w-4 h-4 mr-1 text-green-400" /> Market Open</span>
+            <button 
+              onClick={() => { setCurrentTrade(null); setIsTradeModalOpen(true); }}
+              className="ml-4 flex items-center px-3 py-1 bg-brand-purple/20 text-brand-purple text-xs font-semibold rounded-lg hover:bg-brand-purple/30 transition-colors"
+            >
+              <Plus className="w-3 h-3 mr-1" /> Add Trade
+            </button>
           </div>
         </div>
 
@@ -141,19 +242,27 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div>
               <p className="text-xs text-zinc-500 mb-1">Total Balance</p>
-              <p className="text-2xl font-bold text-white">$0.00</p>
+              <p className="text-2xl font-bold text-white">
+                ${analytics?.stats ? (10000 + analytics.stats.totalPnL).toFixed(2) : '10,000.00'}
+              </p>
             </div>
             <div>
               <p className="text-xs text-zinc-500 mb-1">Total P/L</p>
-              <p className="text-lg font-semibold text-zinc-400">$0.00</p>
+              <p className={`text-lg font-semibold ${!analytics?.stats ? 'text-zinc-400' : analytics.stats.totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                ${analytics?.stats ? analytics.stats.totalPnL.toFixed(2) : '0.00'}
+              </p>
             </div>
             <div>
               <p className="text-xs text-zinc-500 mb-1">Today's P/L</p>
-              <p className="text-lg font-semibold text-zinc-400">$0.00</p>
+              <p className={`text-lg font-semibold ${!analytics?.stats ? 'text-zinc-400' : analytics.stats.todayPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                ${analytics?.stats ? (analytics.stats.todayPnL || 0).toFixed(2) : '0.00'}
+              </p>
             </div>
             <div>
               <p className="text-xs text-zinc-500 mb-1">Win Rate</p>
-              <p className="text-lg font-semibold text-zinc-400">0%</p>
+              <p className="text-lg font-semibold text-zinc-400">
+                {analytics?.stats ? `${analytics.stats.winRate.toFixed(1)}%` : '0%'}
+              </p>
             </div>
           </div>
 
@@ -162,9 +271,11 @@ export default function HomePage() {
               <h3 className="text-sm font-medium text-zinc-300">Performance (30d)</h3>
             </div>
             <div ref={chartContainerRef} className="w-full h-[300px] relative">
-               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                 <p className="text-sm text-zinc-600 bg-[#121214]/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-zinc-800/50">No trade data available</p>
-               </div>
+               {(!analytics?.equityCurve || analytics.equityCurve.length === 0) && (
+                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                   <p className="text-sm text-zinc-600 bg-[#121214]/80 px-4 py-2 rounded-lg backdrop-blur-sm border border-zinc-800/50">No trade data available</p>
+                 </div>
+               )}
             </div>
           </div>
         </div>
@@ -253,17 +364,50 @@ export default function HomePage() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colSpan="5" className="py-8 text-center text-zinc-500">
-                    No active trades currently open.
-                  </td>
-                </tr>
+                {openTrades.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-zinc-500">
+                      No active trades currently open.
+                    </td>
+                  </tr>
+                ) : (
+                  openTrades.map(trade => {
+                    const livePnl = getLivePnl(trade);
+                    const currentPrice = livePrices[trade.pair]?.price;
+                    
+                    return (
+                      <tr key={trade._id} className="text-white hover:bg-zinc-800/20 transition-colors border-b border-zinc-800/20 last:border-0">
+                        <td className="py-3 font-bold">{trade.pair}</td>
+                        <td className="py-3">
+                          <span className={`px-2 py-1 rounded text-xs font-bold ${trade.type === 'BUY' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                            {trade.type}
+                          </span>
+                        </td>
+                        <td className="py-3 font-mono">{trade.entryPrice}</td>
+                        <td className="py-3 font-mono text-zinc-400">{currentPrice || '--'}</td>
+                        <td className="py-3 text-right">
+                          <div className="flex items-center justify-end space-x-3">
+                            <span className={`font-bold block ${livePnl === null ? 'text-zinc-500' : livePnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {livePnl === null ? 'Wait...' : `$${livePnl.toFixed(2)}`}
+                            </span>
+                            <button onClick={() => { setCurrentTrade(trade); setIsCloseModalOpen(true); }} className="p-1.5 text-zinc-400 hover:text-green-400 bg-zinc-800/50 rounded-lg transition-colors" title="Close Trade">
+                              <Check className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
       </div>
+
+      <TradeModal isOpen={isTradeModalOpen} onClose={() => setIsTradeModalOpen(false)} onSubmit={handleTradeSubmit} initialData={currentTrade} />
+      <CloseTradeModal isOpen={isCloseModalOpen} onClose={() => setIsCloseModalOpen(false)} onSubmit={handleCloseSubmit} trade={currentTrade} />
     </div>
   );
 }

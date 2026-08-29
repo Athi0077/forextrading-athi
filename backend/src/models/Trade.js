@@ -66,25 +66,22 @@ const tradeSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Pre-save hook to automatically set status to CLOSED if exitPrice and exitDate exist
-tradeSchema.pre('save', function(next) {
+tradeSchema.pre('save', function() {
   if (this.exitPrice && this.exitDate) {
     this.status = 'CLOSED';
     
-    // Auto calculate PnL if not provided explicitly
-    if (!this.pnl && this.pnl !== 0) {
-      // Basic PnL estimation based on standard lots (this is a rough estimate for the journal)
-      // Usually PnL would be passed directly from the frontend calculator to avoid precision issues
-      const pipValue = 10;
+    // Auto calculate PnL if not provided explicitly (or if it's the default 0)
+    if (this.pnl === 0 || this.pnl == null) {
+      const multiplier = this.pair.includes('JPY') ? 1000 : 100000;
       const diff = this.type === 'BUY' 
         ? (this.exitPrice - this.entryPrice) 
         : (this.entryPrice - this.exitPrice);
       
-      this.pnl = diff * pipValue * this.lotSize * 10; 
+      this.pnl = diff * multiplier * this.lotSize; 
     }
   } else if (!this.exitPrice || !this.exitDate) {
     this.status = 'OPEN';
   }
-  next();
 });
 
 module.exports = mongoose.model('Trade', tradeSchema);

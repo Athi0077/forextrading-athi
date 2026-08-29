@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://forextrading-athi.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:5000/api' : 'https://forextrading-athi.onrender.com/api');
 
 const getAuthToken = () => {
   return localStorage.getItem('token');
@@ -24,7 +24,8 @@ export const apiCall = async (endpoint, options = {}) => {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.error?.message || 'API Request Failed');
+    console.error('API Error Response:', data);
+    throw new Error(data.error?.stack || data.error?.message || 'API Request Failed');
   }
 
   return data;

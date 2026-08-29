@@ -43,7 +43,8 @@ app.use((err, req, res, next) => {
     success: false,
     error: {
       code: 'SERVER_ERROR',
-      message: err.message || 'Internal server error'
+      message: err.message || 'Internal server error',
+      stack: err.stack
     }
   });
 });

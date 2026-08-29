@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { 
-  getTrades, 
+  getTrades,
+  getTradeById, 
   createTrade, 
   updateTrade, 
-  deleteTrade, 
+  deleteTrade,
+  closeTrade, 
   getPortfolioAnalytics,
   getPerformanceInsight
 } = require('../controllers/tradeController');
@@ -23,7 +25,11 @@ router.route('/insight')
   .get(getPerformanceInsight);
 
 router.route('/:id')
+  .get(getTradeById)
   .put(updateTrade)
   .delete(deleteTrade);
+
+router.route('/:id/close')
+  .put(closeTrade);
 
 module.exports = router;
