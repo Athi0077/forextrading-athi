@@ -81,6 +81,7 @@ export default function MainLayout() {
           <Link
             key={item.name}
             to={item.path}
+            onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center px-4 py-3 mb-1 rounded-xl text-sm font-medium transition-all duration-300 group ${
               isActive 
                 ? 'bg-brand-accent/10 text-brand-accent shadow-[inset_0_0_12px_var(--color-accent)] shadow-brand-accent/10' 
