@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { 
@@ -22,6 +22,32 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.themePreferences) {
+      const { mode, accentColor } = currentUser.themePreferences;
+      
+      if (mode === 'Light') {
+        document.body.classList.add('theme-light');
+      } else {
+        document.body.classList.remove('theme-light');
+      }
+
+      const colorMap = {
+        'Blue': '#3b82f6',
+        'Green': '#10b981',
+        'Yellow': '#eab308',
+        'Orange': '#f97316',
+        'Red': '#ef4444',
+        'Purple': '#a855f7',
+        'Violet': '#8b5cf6',
+        'Cyan': '#06b6d4',
+        'Coral': '#ff7f50',
+      };
+      const hex = colorMap[accentColor] || '#ff7f50';
+      document.documentElement.style.setProperty('--color-accent', hex);
+    }
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -60,11 +86,11 @@ export default function AdminLayout() {
             onClick={() => setIsMobileMenuOpen(false)}
             className={`flex items-center px-4 py-3 mb-1 rounded-xl text-sm font-medium transition-all duration-300 group ${
               isActive 
-                ? 'bg-red-500/10 text-red-500 shadow-[inset_0_0_12px_#ef4444] shadow-red-500/10' 
-                : 'text-zinc-500 hover:text-white hover:bg-zinc-800/50'
+                ? 'bg-brand-accent/10 text-brand-accent shadow-[inset_0_0_12px_var(--color-accent)] shadow-brand-accent/10' 
+                : 'text-brand-muted hover:text-brand-text hover:bg-brand-elevated/50'
             }`}
           >
-            <item.icon className={`w-5 h-5 mr-3 transition-colors ${isActive ? 'text-red-500' : 'text-zinc-500 group-hover:text-white'}`} aria-hidden="true" />
+            <item.icon className={`w-5 h-5 mr-3 transition-colors ${isActive ? 'text-brand-accent' : 'text-brand-muted group-hover:text-brand-text'}`} aria-hidden="true" />
             {item.name}
           </Link>
         );
@@ -73,7 +99,7 @@ export default function AdminLayout() {
   );
 
   return (
-    <div className="min-h-screen flex bg-[#09090b] text-zinc-300">
+    <div className="min-h-screen flex bg-brand-base text-brand-text">
       {/* Mobile sidebar backdrop */}
       {isMobileMenuOpen && (
         <div 
@@ -83,17 +109,17 @@ export default function AdminLayout() {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#121214] border-r border-zinc-800 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-surface border-r border-brand-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-20 px-6 bg-transparent">
           <Link to="/admin" className="flex items-center space-x-3 group">
-            <div className="p-2 rounded-xl bg-red-500/10 transition-all">
-              <Shield className="h-6 w-6 text-red-500" />
+            <div className="p-2 rounded-xl bg-brand-accent/10 transition-all">
+              <Shield className="h-6 w-6 text-brand-accent" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              ADMIN<span className="text-red-500">PANEL</span>
+            <span className="text-xl font-bold tracking-tight text-brand-text">
+              ADMIN<span className="text-brand-accent">PANEL</span>
             </span>
           </Link>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-zinc-400 hover:text-white p-2">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-brand-muted hover:text-brand-text p-2">
             <X className="h-6 w-6" />
           </button>
         </div>
@@ -106,20 +132,20 @@ export default function AdminLayout() {
         </div>
 
         {currentUser && (
-          <div className="p-4 border-t border-zinc-800">
-            <div className="flex items-center p-2 rounded-xl hover:bg-zinc-800/50 transition-colors cursor-pointer justify-between">
+          <div className="p-4 border-t border-brand-border">
+            <div className="flex items-center p-2 rounded-xl hover:bg-brand-elevated/50 transition-colors cursor-pointer justify-between">
               <div className="flex items-center space-x-3 overflow-hidden">
-                <div className="h-10 w-10 rounded-full bg-red-500 flex items-center justify-center text-white font-bold flex-shrink-0">
+                <div className="h-10 w-10 rounded-full bg-brand-accent flex items-center justify-center text-white font-bold flex-shrink-0">
                   {(currentUser.name || currentUser.email)[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0 hidden lg:block">
-                  <p className="text-sm font-medium text-white truncate">{currentUser.name || currentUser.email.split('@')[0]}</p>
-                  <p className="text-xs text-red-400 font-semibold truncate">Administrator</p>
+                  <p className="text-sm font-medium text-brand-text truncate">{currentUser.name || currentUser.email.split('@')[0]}</p>
+                  <p className="text-xs text-brand-accent font-semibold truncate">Administrator</p>
                 </div>
               </div>
               <button
                 onClick={handleLogout}
-                className="p-2 text-zinc-400 hover:text-white hover:bg-zinc-800 rounded-lg transition-colors flex-shrink-0"
+                className="p-2 text-brand-muted hover:text-brand-text hover:bg-brand-elevated rounded-lg transition-colors flex-shrink-0"
                 title="Logout"
               >
                 <LogOut className="h-4 w-4" />
@@ -130,16 +156,16 @@ export default function AdminLayout() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-[#09090b] relative z-0">
-        <header className="h-16 flex-shrink-0 bg-[#121214]/80 backdrop-blur-md border-b border-zinc-800 flex items-center justify-between px-4 sm:px-6 z-10 lg:hidden">
+      <div className="flex-1 flex flex-col overflow-hidden bg-brand-base relative z-0">
+        <header className="h-16 flex-shrink-0 bg-brand-surface/80 backdrop-blur-md border-b border-brand-border flex items-center justify-between px-4 sm:px-6 z-10 lg:hidden">
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800/50 transition-colors"
+            className="p-2 text-brand-muted hover:text-brand-text rounded-lg hover:bg-brand-elevated/50 transition-colors"
           >
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center space-x-2">
-            <span className="font-bold text-white tracking-tight">ADMIN<span className="text-red-500">PANEL</span></span>
+            <span className="font-bold text-brand-text tracking-tight">ADMIN<span className="text-brand-accent">PANEL</span></span>
           </div>
           <div className="w-10"></div>
         </header>

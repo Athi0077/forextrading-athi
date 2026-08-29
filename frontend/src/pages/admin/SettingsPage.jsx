@@ -79,128 +79,145 @@ export default function AdminSettingsPage() {
     );
   }
 
+  const handleColorSelect = (colorName) => {
+    setSettings(prev => ({ ...prev, accentColor: colorName }));
+    const hexMap = {
+      'Blue': '#3b82f6',
+      'Green': '#10b981',
+      'Yellow': '#eab308',
+      'Orange': '#f97316',
+      'Red': '#ef4444',
+      'Purple': '#a855f7',
+      'Violet': '#8b5cf6',
+      'Cyan': '#06b6d4',
+      'Coral': '#ff7f50',
+    };
+    const hex = hexMap[colorName] || '#ef4444';
+    document.documentElement.style.setProperty('--color-accent', hex);
+  };
+
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Platform Settings</h1>
-        <p className="text-zinc-400 text-sm mt-1">Configure global application preferences and features.</p>
+        <h1 className="text-2xl font-bold text-brand-text tracking-tight">Platform Settings</h1>
+        <p className="text-brand-muted text-sm mt-1">Configure global application preferences and features.</p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
         
         {/* General Settings */}
-        <div className="bg-[#121214] border border-zinc-800 rounded-2xl p-6">
-          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-zinc-800/50">
-            <Globe className="w-5 h-5 text-zinc-400" />
-            <h2 className="text-lg font-semibold text-white">General Information</h2>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-6">
+          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-brand-border">
+            <Globe className="w-5 h-5 text-brand-muted" />
+            <h2 className="text-lg font-semibold text-brand-text">General Information</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1">Site Name</label>
+              <label className="block text-sm font-medium text-brand-muted mb-1">Site Name</label>
               <input
                 type="text"
                 name="siteName"
                 value={settings.siteName}
                 onChange={handleChange}
-                className={`w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2 px-4 text-white focus:outline-none ${activeTheme.focusBorder} focus:ring-1 ${activeTheme.ring}`}
+                className={`w-full bg-brand-elevated border border-brand-border rounded-xl py-2 px-4 text-brand-text focus:outline-none ${activeTheme.focusBorder} focus:ring-1 ${activeTheme.ring}`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-zinc-400 mb-1">System Email Address</label>
+              <label className="block text-sm font-medium text-brand-muted mb-1">System Email Address</label>
               <input
                 type="email"
                 name="systemEmail"
                 value={settings.systemEmail}
                 onChange={handleChange}
-                className={`w-full bg-zinc-900 border border-zinc-800 rounded-xl py-2 px-4 text-white focus:outline-none ${activeTheme.focusBorder} focus:ring-1 ${activeTheme.ring}`}
+                className={`w-full bg-brand-elevated border border-brand-border rounded-xl py-2 px-4 text-brand-text focus:outline-none ${activeTheme.focusBorder} focus:ring-1 ${activeTheme.ring}`}
               />
             </div>
           </div>
         </div>
 
         {/* Security & Access */}
-        <div className="bg-[#121214] border border-zinc-800 rounded-2xl p-6">
-          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-zinc-800/50">
-            <Shield className="w-5 h-5 text-zinc-400" />
-            <h2 className="text-lg font-semibold text-white">Security & Access</h2>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-6">
+          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-brand-border">
+            <Shield className="w-5 h-5 text-brand-muted" />
+            <h2 className="text-lg font-semibold text-brand-text">Security & Access</h2>
           </div>
           
           <div className="space-y-4">
-            <label className="flex items-center justify-between cursor-pointer p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <label className="flex items-center justify-between cursor-pointer p-4 bg-brand-elevated/50 rounded-xl border border-brand-border hover:border-brand-accent transition-colors">
               <div>
-                <p className="text-white font-medium">Maintenance Mode</p>
-                <p className="text-sm text-zinc-500">Temporarily disable access to the platform for all non-admin users.</p>
+                <p className="text-brand-text font-medium">Maintenance Mode</p>
+                <p className="text-sm text-brand-muted">Temporarily disable access to the platform for all non-admin users.</p>
               </div>
               <div className="relative inline-flex items-center">
                 <input type="checkbox" name="maintenanceMode" checked={settings.maintenanceMode} onChange={handleChange} className="sr-only peer" />
-                <div className={`w-11 h-6 bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
+                <div className={`w-11 h-6 bg-brand-muted rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-brand-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
               </div>
             </label>
 
-            <label className="flex items-center justify-between cursor-pointer p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <label className="flex items-center justify-between cursor-pointer p-4 bg-brand-elevated/50 rounded-xl border border-brand-border hover:border-brand-accent transition-colors">
               <div>
-                <p className="text-white font-medium">Allow New Registrations</p>
-                <p className="text-sm text-zinc-500">Enable or disable new user sign-ups.</p>
+                <p className="text-brand-text font-medium">Allow New Registrations</p>
+                <p className="text-sm text-brand-muted">Enable or disable new user sign-ups.</p>
               </div>
               <div className="relative inline-flex items-center">
                 <input type="checkbox" name="allowRegistration" checked={settings.allowRegistration} onChange={handleChange} className="sr-only peer" />
-                <div className={`w-11 h-6 bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
+                <div className={`w-11 h-6 bg-brand-muted rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-brand-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
               </div>
             </label>
 
-            <label className="flex items-center justify-between cursor-pointer p-4 bg-zinc-900/50 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-colors">
+            <label className="flex items-center justify-between cursor-pointer p-4 bg-brand-elevated/50 rounded-xl border border-brand-border hover:border-brand-accent transition-colors">
               <div>
-                <p className="text-white font-medium">Require Email Verification</p>
-                <p className="text-sm text-zinc-500">Users must verify their email before accessing the platform.</p>
+                <p className="text-brand-text font-medium">Require Email Verification</p>
+                <p className="text-sm text-brand-muted">Users must verify their email before accessing the platform.</p>
               </div>
               <div className="relative inline-flex items-center">
                 <input type="checkbox" name="requireEmailVerification" checked={settings.requireEmailVerification} onChange={handleChange} className="sr-only peer" />
-                <div className={`w-11 h-6 bg-zinc-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
+                <div className={`w-11 h-6 bg-brand-muted rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-brand-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${activeTheme.peerCheckedBg}`}></div>
               </div>
             </label>
           </div>
         </div>
 
         {/* Appearance */}
-        <div className="bg-[#121214] border border-zinc-800 rounded-2xl p-6">
-          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-zinc-800/50">
-            <Sun className="w-5 h-5 text-zinc-400" />
-            <h2 className="text-lg font-semibold text-white">Appearance</h2>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-6">
+          <div className="flex items-center space-x-2 mb-4 pb-4 border-b border-brand-border">
+            <Sun className="w-5 h-5 text-brand-muted" />
+            <h2 className="text-lg font-semibold text-brand-text">Appearance</h2>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-2">Default Theme for New Users</label>
+            <label className="block text-sm font-medium text-brand-muted mb-2">Default Theme for New Users</label>
             <div className="flex space-x-4">
-              <label className={`flex-1 flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-colors ${settings.defaultTheme === 'dark' ? `${activeTheme.border} ${activeTheme.bgSubtle}` : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'}`}>
+              <label className={`flex-1 flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-colors ${settings.defaultTheme === 'dark' ? `${activeTheme.border} ${activeTheme.bgSubtle}` : 'border-brand-border bg-brand-elevated/50 hover:border-brand-accent'}`}>
                 <input type="radio" name="defaultTheme" value="dark" checked={settings.defaultTheme === 'dark'} onChange={handleChange} className="sr-only" />
-                <Moon className={`w-5 h-5 mr-2 ${settings.defaultTheme === 'dark' ? activeTheme.text : 'text-zinc-300'}`} />
-                <span className={`${settings.defaultTheme === 'dark' ? activeTheme.text : 'text-zinc-300'} font-medium`}>Dark Mode</span>
+                <Moon className={`w-5 h-5 mr-2 ${settings.defaultTheme === 'dark' ? activeTheme.text : 'text-brand-muted'}`} />
+                <span className={`${settings.defaultTheme === 'dark' ? activeTheme.text : 'text-brand-muted'} font-medium`}>Dark Mode</span>
               </label>
-              <label className={`flex-1 flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-colors ${settings.defaultTheme === 'light' ? `${activeTheme.border} ${activeTheme.bgSubtle}` : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700'}`}>
+              <label className={`flex-1 flex items-center justify-center p-4 border rounded-xl cursor-pointer transition-colors ${settings.defaultTheme === 'light' ? `${activeTheme.border} ${activeTheme.bgSubtle}` : 'border-brand-border bg-brand-elevated/50 hover:border-brand-accent'}`}>
                 <input type="radio" name="defaultTheme" value="light" checked={settings.defaultTheme === 'light'} onChange={handleChange} className="sr-only" />
-                <Sun className={`w-5 h-5 mr-2 ${settings.defaultTheme === 'light' ? activeTheme.text : 'text-zinc-300'}`} />
-                <span className={`${settings.defaultTheme === 'light' ? activeTheme.text : 'text-zinc-300'} font-medium`}>Light Mode</span>
+                <Sun className={`w-5 h-5 mr-2 ${settings.defaultTheme === 'light' ? activeTheme.text : 'text-brand-muted'}`} />
+                <span className={`${settings.defaultTheme === 'light' ? activeTheme.text : 'text-brand-muted'} font-medium`}>Light Mode</span>
               </label>
             </div>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-zinc-800/50">
-            <label className="block text-sm font-bold text-white mb-4">Accent color</label>
+          <div className="mt-8 pt-6 border-t border-brand-border">
+            <label className="block text-sm font-bold text-brand-text mb-4">Accent color</label>
             <div className="flex flex-wrap gap-6">
               {accentColors.map((color) => (
                 <div key={color.name} className="flex flex-col items-center space-y-2">
                   <button
                     type="button"
-                    onClick={() => setSettings(prev => ({ ...prev, accentColor: color.name }))}
+                    onClick={() => handleColorSelect(color.name)}
                     className={`w-12 h-12 rounded-full ${color.class} transition-all relative flex items-center justify-center hover:scale-105`}
                     title={color.name}
                   >
                     {settings.accentColor === color.name && (
-                      <span className={`absolute inset-[-4px] border-2 border-white rounded-full ${colorMap[color.name].shadow}`}></span>
+                      <span className={`absolute inset-[-4px] border-2 border-brand-surface rounded-full ${colorMap[color.name].shadow}`}></span>
                     )}
                   </button>
-                  <span className={`text-xs ${settings.accentColor === color.name ? 'text-white font-medium' : 'text-zinc-500'}`}>
+                  <span className={`text-xs ${settings.accentColor === color.name ? 'text-brand-text font-medium' : 'text-brand-muted'}`}>
                     {color.name}
                   </span>
                 </div>

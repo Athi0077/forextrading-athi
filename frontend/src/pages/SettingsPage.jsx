@@ -101,12 +101,12 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 text-zinc-300">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto space-y-6 text-brand-text">
       
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-sm text-zinc-500 mt-1">Manage your account preferences, security, and workspace appearance.</p>
+        <h1 className="text-2xl font-bold text-brand-text">Settings</h1>
+        <p className="text-sm text-brand-muted mt-1">Manage your account preferences, security, and workspace appearance.</p>
       </div>
 
       {/* Message Toast */}
@@ -147,8 +147,8 @@ export default function SettingsPage() {
           {activeTab === 'APPEARANCE' && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2">
               <div>
-                <h3 className="text-xl font-bold text-white">Themes</h3>
-                <p className="text-sm text-zinc-400 mt-1 mb-6">Customize the visual style of your workspace.</p>
+                <h3 className="text-xl font-bold text-brand-text">Themes</h3>
+                <p className="text-sm text-brand-muted mt-1 mb-6">Customize the visual style of your workspace.</p>
                 
                 <div className="inline-flex bg-brand-elevated p-1 rounded-full border border-brand-border">
                   {['Auto', 'Light', 'Dark'].map((mode) => (
@@ -163,8 +163,8 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-zinc-800/50">
-                <h4 className="text-sm font-bold text-zinc-300 mb-4">Accent color</h4>
+              <div className="pt-6 border-t border-brand-border">
+                <h4 className="text-sm font-bold text-brand-text mb-4">Accent color</h4>
                 <div className="flex flex-wrap gap-4">
                   {ACCENT_COLORS.map(color => (
                     <div key={color.name} className="flex flex-col items-center gap-2">
@@ -172,9 +172,9 @@ export default function SettingsPage() {
                         onClick={() => handleThemeChange(themeMode, color.name)}
                         className={`w-10 h-10 rounded-full transition-all flex items-center justify-center relative ${color.class} ${accentColor === color.name ? 'ring-2 ring-offset-2 ring-offset-brand-surface ring-brand-text scale-110 shadow-lg' : 'opacity-80 hover:opacity-100 hover:scale-105'}`}
                       >
-                        {accentColor === color.name && <div className="absolute inset-0 rounded-full border border-white/50 m-0.5"></div>}
+                        {accentColor === color.name && <div className="absolute inset-0 rounded-full border border-brand-surface m-0.5"></div>}
                       </button>
-                      <span className={`text-xs ${accentColor === color.name ? 'text-white font-medium' : 'text-zinc-500'}`}>{color.name}</span>
+                      <span className={`text-xs ${accentColor === color.name ? 'text-brand-text font-medium' : 'text-brand-muted'}`}>{color.name}</span>
                     </div>
                   ))}
                 </div>
@@ -186,13 +186,13 @@ export default function SettingsPage() {
           {activeTab === 'PROFILE' && (
             <form onSubmit={handleProfileSave} className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
               <div>
-                <h3 className="text-xl font-bold text-white">Profile Data</h3>
-                <p className="text-sm text-zinc-400 mt-1">Update your personal information.</p>
+                <h3 className="text-xl font-bold text-brand-text">Profile Data</h3>
+                <p className="text-sm text-brand-muted mt-1">Update your personal information.</p>
               </div>
 
               <div className="space-y-4 max-w-md">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Full Name</label>
+                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Full Name</label>
                   <input 
                     type="text" 
                     required
@@ -202,7 +202,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Email Address</label>
+                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Email Address</label>
                   <input 
                     type="email" 
                     disabled
@@ -230,13 +230,13 @@ export default function SettingsPage() {
           {activeTab === 'SECURITY' && (
             <form onSubmit={handlePasswordSave} className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
               <div>
-                <h3 className="text-xl font-bold text-white">Security</h3>
-                <p className="text-sm text-zinc-400 mt-1">Update your password to keep your account secure.</p>
+                <h3 className="text-xl font-bold text-brand-text">Security</h3>
+                <p className="text-sm text-brand-muted mt-1">Update your password to keep your account secure.</p>
               </div>
 
               <div className="space-y-4 max-w-md">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Current Password</label>
+                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Current Password</label>
                   <input 
                     type="password" 
                     required
@@ -246,7 +246,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">New Password</label>
+                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">New Password</label>
                   <input 
                     type="password" 
                     required
@@ -257,7 +257,7 @@ export default function SettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase">Confirm New Password</label>
+                  <label className="block text-xs font-semibold text-brand-muted mb-1.5 uppercase">Confirm New Password</label>
                   <input 
                     type="password" 
                     required
