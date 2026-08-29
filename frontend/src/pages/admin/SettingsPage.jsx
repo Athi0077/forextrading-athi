@@ -1,8 +1,10 @@
-import { useState } from 'react';
-import { Save, Bell, Shield, Globe, Database, Moon, Sun } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, Bell, Shield, Globe, Database, Moon, Sun, RefreshCw } from 'lucide-react';
+import { apiCall } from '../../services/api';
 
 export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [settings, setSettings] = useState({
     siteName: 'ForexTrading Platform',
     maintenanceMode: false,
@@ -12,6 +14,22 @@ export default function AdminSettingsPage() {
     accentColor: 'Red',
     systemEmail: 'admin@forextrading.com',
   });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await apiCall('/admin/settings', { method: 'GET' });
+        if (res.data) {
+          setSettings(res.data);
+        }
+      } catch (error) {
+        console.error('Error fetching settings:', error);
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   const colorMap = {
     Blue: { bg: 'bg-blue-500', text: 'text-blue-500', border: 'border-blue-500', bgSubtle: 'bg-blue-500/10', ring: 'focus:ring-blue-500/50', focusBorder: 'focus:border-blue-500/50', shadow: 'shadow-[0_0_10px_rgba(59,130,246,0.5)]', peerCheckedBg: 'peer-checked:bg-blue-500' },
@@ -39,12 +57,27 @@ export default function AdminSettingsPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API save
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await apiCall('/admin/settings', {
+        method: 'POST',
+        body: JSON.stringify(settings)
+      });
       alert('Settings saved successfully!');
-    }, 800);
+    } catch (error) {
+      console.error('Failed to save settings:', error);
+      alert('Failed to save settings. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <RefreshCw className="h-8 w-8 animate-spin text-red-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
