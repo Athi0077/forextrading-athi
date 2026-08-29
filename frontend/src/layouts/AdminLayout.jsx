@@ -13,7 +13,8 @@ import {
   Shield,
   LifeBuoy,
   MessageSquare,
-  Cpu
+  Cpu,
+  TrendingUp
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -34,6 +35,7 @@ export default function AdminLayout() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { name: 'Users', path: '/admin/users', icon: Users },
+    { name: 'Trading Activity', path: '/admin/trades', icon: TrendingUp },
     { name: 'Payments', path: '/admin/payments', icon: CreditCard },
     { name: 'Subscriptions', path: '/admin/subscriptions', icon: Activity },
     { name: 'Support', path: '/admin/support', icon: LifeBuoy },

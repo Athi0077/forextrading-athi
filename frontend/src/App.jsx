@@ -18,6 +18,7 @@ import AdminRoute from './components/AdminRoute';
 import AdminLayout from './layouts/AdminLayout';
 import AdminDashboardPage from './pages/admin/DashboardPage';
 import AdminUsersPage from './pages/admin/UsersPage';
+import AdminTradingActivityPage from './pages/admin/TradingActivityPage';
 
 function App() {
   return (
@@ -109,6 +110,7 @@ function App() {
         }>
           <Route index element={<AdminDashboardPage />} />
           <Route path="users" element={<AdminUsersPage />} />
+          <Route path="trades" element={<AdminTradingActivityPage />} />
           {/* Placeholders for future pages */}
           <Route path="payments" element={<div className="p-8 text-zinc-400">Payments Page (Coming Soon)</div>} />
           <Route path="subscriptions" element={<div className="p-8 text-zinc-400">Subscriptions Page (Coming Soon)</div>} />

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiCall } from '../../services/api';
-import { Users, Activity, CreditCard, Cpu, ArrowUpRight, ArrowDownRight, Globe } from 'lucide-react';
+import { Users, Activity, CreditCard, Cpu, ArrowUpRight, ArrowDownRight, Globe, TrendingUp, TrendingDown, Layers } from 'lucide-react';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
@@ -34,8 +34,10 @@ export default function DashboardPage() {
     { name: 'Online Users', value: stats.onlineUsers, icon: Globe, color: 'text-green-500', bg: 'bg-green-500/10' },
     { name: 'Active Users (7d)', value: stats.activeUsers, icon: Activity, color: 'text-purple-500', bg: 'bg-purple-500/10' },
     { name: 'New Users (24h)', value: stats.newUsers, icon: ArrowUpRight, color: 'text-yellow-500', bg: 'bg-yellow-500/10' },
-    { name: 'Premium Users', value: stats.premiumUsers, icon: CreditCard, color: 'text-pink-500', bg: 'bg-pink-500/10' },
-    { name: 'AI Requests', value: stats.totalAiRequests, icon: Cpu, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+    { name: 'Total Trades', value: stats.tradeStats?.totalTrades || 0, icon: Layers, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+    { name: 'Open Trades', value: stats.tradeStats?.openTrades || 0, icon: Activity, color: 'text-orange-500', bg: 'bg-orange-500/10' },
+    { name: 'Winning Trades', value: stats.tradeStats?.winningTrades || 0, icon: TrendingUp, color: 'text-green-500', bg: 'bg-green-500/10' },
+    { name: 'Net P/L', value: `$${(stats.tradeStats?.netPnl || 0).toFixed(2)}`, icon: stats.tradeStats?.netPnl >= 0 ? TrendingUp : TrendingDown, color: stats.tradeStats?.netPnl >= 0 ? 'text-green-500' : 'text-red-500', bg: stats.tradeStats?.netPnl >= 0 ? 'bg-green-500/10' : 'bg-red-500/10' },
   ];
 
   return (

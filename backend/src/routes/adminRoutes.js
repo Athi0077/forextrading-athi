@@ -4,6 +4,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');
 const dashboardController = require('../controllers/admin/dashboardController');
 const userController = require('../controllers/admin/userController');
+const tradeController = require('../controllers/admin/tradeController');
 
 // All admin routes must be authenticated and authorized
 router.use(authMiddleware);
@@ -18,6 +19,12 @@ router.get('/users/:id', userController.getUserDetails);
 router.put('/users/:id/status', userController.updateUserStatus);
 router.put('/users/:id/role', userController.updateUserRole);
 router.delete('/users/:id', userController.deleteUser);
+
+// User Trades Summary
+router.get('/users/:id/trades', tradeController.getUserTradeSummary);
+
+// Trading Activity (All Users)
+router.get('/trades', tradeController.getAllTrades);
 
 // Placeholder routes for Phase 1 - to be implemented fully later if needed
 router.get('/activity', (req, res) => res.json({ success: true, data: [] }));
