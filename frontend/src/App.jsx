@@ -19,6 +19,7 @@ import AdminLayout from './layouts/AdminLayout';
 import AdminDashboardPage from './pages/admin/DashboardPage';
 import AdminUsersPage from './pages/admin/UsersPage';
 import AdminTradingActivityPage from './pages/admin/TradingActivityPage';
+import AdminSettingsPage from './pages/admin/SettingsPage';
 
 function App() {
   return (
@@ -118,6 +119,7 @@ function App() {
           <Route path="announcements" element={<div className="p-8 text-zinc-400">Announcements (Coming Soon)</div>} />
           <Route path="ai" element={<div className="p-8 text-zinc-400">AI Config (Coming Soon)</div>} />
           <Route path="logs" element={<div className="p-8 text-zinc-400">Security Logs (Coming Soon)</div>} />
+          <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
       </Routes>
     </AuthProvider>

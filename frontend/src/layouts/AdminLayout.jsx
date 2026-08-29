@@ -42,6 +42,7 @@ export default function AdminLayout() {
     { name: 'Announcements', path: '/admin/announcements', icon: MessageSquare },
     { name: 'AI Config', path: '/admin/ai', icon: Cpu },
     { name: 'Security Logs', path: '/admin/logs', icon: Shield },
+    { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
   const renderNavLinks = (items) => (
