@@ -9,8 +9,21 @@ export default function AdminSettingsPage() {
     allowRegistration: true,
     requireEmailVerification: false,
     defaultTheme: 'dark',
+    accentColor: 'Red',
     systemEmail: 'admin@forextrading.com',
   });
+
+  const accentColors = [
+    { name: 'Blue', class: 'bg-blue-500' },
+    { name: 'Green', class: 'bg-green-500' },
+    { name: 'Yellow', class: 'bg-yellow-500' },
+    { name: 'Orange', class: 'bg-orange-500' },
+    { name: 'Red', class: 'bg-red-500' },
+    { name: 'Purple', class: 'bg-purple-500' },
+    { name: 'Violet', class: 'bg-violet-500' },
+    { name: 'Cyan', class: 'bg-cyan-500' },
+    { name: 'Coral', class: 'bg-rose-400' },
+  ];
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -133,6 +146,29 @@ export default function AdminSettingsPage() {
                 <Sun className="w-5 h-5 text-zinc-300 mr-2" />
                 <span className="text-zinc-300 font-medium">Light Mode</span>
               </label>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-zinc-800/50">
+            <label className="block text-sm font-bold text-white mb-4">Accent color</label>
+            <div className="flex flex-wrap gap-6">
+              {accentColors.map((color) => (
+                <div key={color.name} className="flex flex-col items-center space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => setSettings(prev => ({ ...prev, accentColor: color.name }))}
+                    className={`w-12 h-12 rounded-full ${color.class} transition-all relative flex items-center justify-center hover:scale-105`}
+                    title={color.name}
+                  >
+                    {settings.accentColor === color.name && (
+                      <span className="absolute inset-[-4px] border-2 border-white rounded-full shadow-[0_0_10px_rgba(239,68,68,0.5)]"></span>
+                    )}
+                  </button>
+                  <span className={`text-xs ${settings.accentColor === color.name ? 'text-white font-medium' : 'text-zinc-500'}`}>
+                    {color.name}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
