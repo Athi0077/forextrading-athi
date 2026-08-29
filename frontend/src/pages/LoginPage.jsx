@@ -16,8 +16,12 @@ export default function LoginPage() {
     try {
       setError('');
       setLoading(true);
-      await login(email, password);
-      navigate('/home');
+      const data = await login(email, password);
+      if (data.user && data.user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
     } catch (err) {
       setError(err.message || 'Failed to sign in. Please check your credentials.');
     } finally {
