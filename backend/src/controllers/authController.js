@@ -51,7 +51,13 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ success: false, error: { code: 'AUTH_FAILED', message: 'Invalid email or password.' } });
     }
 
+    if (user.status === 'blocked') {
+      return res.status(403).json({ success: false, error: { code: 'ACCOUNT_BLOCKED', message: 'This account has been blocked.' } });
+    }
+
     user.lastLoginAt = new Date();
+    user.lastSeen = new Date();
+    user.isOnline = true;
     await user.save();
 
     res.json({
@@ -67,8 +73,27 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
+  try {
+    if (req.user && req.user.id) {
+      await User.findByIdAndUpdate(req.user.id, { isOnline: false, lastSeen: new Date() });
+    }
+  } catch (error) {
+    console.error('Logout tracking error:', error);
+  }
   // For JWT, logout is typically handled client-side by destroying the token
   res.json({ success: true, data: { message: 'Logged out successfully' } });
+};
+
+const heartbeat = async (req, res) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false });
+    }
+    await User.findByIdAndUpdate(req.user.id, { isOnline: true, lastSeen: new Date() });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: { message: 'Heartbeat failed' } });
+  }
 };
 
 const getMe = async (req, res) => {
@@ -90,5 +115,6 @@ module.exports = {
   registerUser,
   loginUser,
   logoutUser,
-  getMe
+  getMe,
+  heartbeat
 };

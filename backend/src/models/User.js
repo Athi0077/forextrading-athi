@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     default: 'user'
   },
   lastLoginAt: Date,
+  lastSeen: Date,
+  isOnline: { type: Boolean, default: false },
+  status: { type: String, enum: ['active', 'blocked'], default: 'active' },
+  isPremium: { type: Boolean, default: false },
   themePreferences: {
     mode: { type: String, enum: ['Auto', 'Light', 'Dark'], default: 'Dark' },
     accentColor: { type: String, default: 'Coral' }

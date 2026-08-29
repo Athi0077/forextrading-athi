@@ -30,6 +30,23 @@ export function AuthProvider({ children }) {
     initAuth();
   }, []);
 
+  useEffect(() => {
+    let heartbeatInterval;
+    if (currentUser) {
+      // Send initial heartbeat
+      apiCall('/auth/heartbeat', { method: 'POST' }).catch(console.error);
+      
+      // Send heartbeat every 3 minutes
+      heartbeatInterval = setInterval(() => {
+        apiCall('/auth/heartbeat', { method: 'POST' }).catch(console.error);
+      }, 3 * 60 * 1000);
+    }
+    
+    return () => {
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+    };
+  }, [currentUser]);
+
   const login = async (email, password) => {
     const res = await apiCall('/auth/login', {
       method: 'POST',

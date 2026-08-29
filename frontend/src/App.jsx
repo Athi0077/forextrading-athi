@@ -14,6 +14,11 @@ import AiAssistantPage from './pages/AiAssistantPage';
 import SettingsPage from './pages/SettingsPage';
 import SupportPage from './pages/SupportPage';
 
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './layouts/AdminLayout';
+import AdminDashboardPage from './pages/admin/DashboardPage';
+import AdminUsersPage from './pages/admin/UsersPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -95,6 +100,22 @@ function App() {
               </ProtectedRoute>
             } 
           />
+        </Route>
+
+        <Route path="/admin" element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }>
+          <Route index element={<AdminDashboardPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          {/* Placeholders for future pages */}
+          <Route path="payments" element={<div className="p-8 text-zinc-400">Payments Page (Coming Soon)</div>} />
+          <Route path="subscriptions" element={<div className="p-8 text-zinc-400">Subscriptions Page (Coming Soon)</div>} />
+          <Route path="support" element={<div className="p-8 text-zinc-400">Support Management (Coming Soon)</div>} />
+          <Route path="announcements" element={<div className="p-8 text-zinc-400">Announcements (Coming Soon)</div>} />
+          <Route path="ai" element={<div className="p-8 text-zinc-400">AI Config (Coming Soon)</div>} />
+          <Route path="logs" element={<div className="p-8 text-zinc-400">Security Logs (Coming Soon)</div>} />
         </Route>
       </Routes>
     </AuthProvider>
