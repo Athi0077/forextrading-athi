@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Bell, TrendingUp, TrendingDown, Clock, Activity, Zap, ChevronRight, BarChart2, Briefcase, Bot, Eye, Plus, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getXauUsdAnalysis } from '../services/marketAnalysis';
+import { getMarketAnalysis } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
 import { createChart } from 'lightweight-charts';
 import { getPortfolioAnalytics, getTrades, createTrade, updateTrade, closeTrade } from '../services/tradeService';
@@ -38,7 +38,7 @@ export default function HomePage() {
     // Fetch AI Insight
     const fetchInsight = async () => {
       try {
-        const data = await getXauUsdAnalysis();
+        const data = await getMarketAnalysis();
         setInsight(data?.summary || data?.analysis || 'Market is showing mixed signals across major pairs. Awaiting further confirmation.');
       } catch (error) {
         console.error('Failed to fetch insight', error);
