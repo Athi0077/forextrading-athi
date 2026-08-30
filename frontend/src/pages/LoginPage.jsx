@@ -61,7 +61,7 @@ export default function LoginPage() {
       {/* Overlay to darken video */}
       <div className="absolute inset-0 bg-black/60 z-0"></div>
 
-      <div className="relative z-10 max-w-md w-full space-y-8 bg-brand-dark/90 backdrop-blur-md p-8 rounded-2xl border border-slate-800 shadow-xl">
+      <div className="relative z-10 max-w-md w-full space-y-8 bg-black/20 backdrop-blur-lg p-8 rounded-2xl border border-white/10 shadow-2xl">
         <div className="text-center">
           <img src={logo} alt="ForexTrading Logo" className="mx-auto h-16 w-auto object-contain rounded-xl" />
           <h2 className="mt-6 text-3xl font-extrabold text-white">
