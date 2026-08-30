@@ -191,6 +191,35 @@ async function getQuotes(symbols) {
     if (quotesCache.data) {
       return quotesCache.data; // Return stale cache if API fails (e.g. 429)
     }
+    
+    // Final fallback to MongoDB if we have no memory cache
+    try {
+      const fallbackData = {};
+      const symArray = symbols.split(',');
+      for (const rawSym of symArray) {
+        const sym = formatApiSymbol(rawSym);
+        const latest = await MarketData.findOne({ symbol: sym }).sort({ timestamp: -1 });
+        if (latest) {
+          // Format exactly like TwelveData quote response
+          fallbackData[rawSym] = {
+            symbol: sym,
+            close: latest.close.toString(),
+            open: latest.open.toString(),
+            high: latest.high.toString(),
+            low: latest.low.toString(),
+            change: "0",
+            percent_change: "0",
+            is_market_open: false
+          };
+        }
+      }
+      if (Object.keys(fallbackData).length > 0) {
+        return fallbackData;
+      }
+    } catch (dbError) {
+      // Ignore DB error and throw original error
+    }
+
     throw new Error('Market quotes are temporarily unavailable. Please try again.');
   }
 }
