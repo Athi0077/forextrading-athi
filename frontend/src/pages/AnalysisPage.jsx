@@ -232,6 +232,7 @@ export default function AnalysisPage() {
             isLoading={isChartLoading && chartCandles.length === 0} 
             plotData={analysisData}
             symbol={selectedMarket}
+            previousClose={liveData?.previousClose}
           />
         </div>
 

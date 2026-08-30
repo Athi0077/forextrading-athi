@@ -1,13 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createChart } from 'lightweight-charts';
 import socketClient from '../../services/socketClient';
 import { normalizeSymbol } from '../../utils/marketUtils';
 
-export default function CandlestickChart({ candles, isLoading, error, syncTimestamp, plotData, symbol }) {
+export default function CandlestickChart({ candles, isLoading, error, syncTimestamp, plotData, symbol, previousClose }) {
+  const [chartType, setChartType] = useState('candlestick');
+  
   const chartContainerRef = useRef();
   const chartRef = useRef(null);
-  const seriesRef = useRef(null);
+  const candlestickSeriesRef = useRef(null);
+  const areaSeriesRef = useRef(null);
   const priceLinesRef = useRef([]);
+  const prevCloseLineRef = useRef(null);
   const candlesRef = useRef([]);
 
   useEffect(() => {
@@ -18,7 +22,7 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
     const selectedSymbol = normalizeSymbol(symbol);
     
     const unsubscribe = socketClient.onPriceUpdate((tick) => {
-      if (!seriesRef.current || !candlesRef.current || candlesRef.current.length === 0) return;
+      if (!candlestickSeriesRef.current || !areaSeriesRef.current || !candlesRef.current || candlesRef.current.length === 0) return;
       if (!selectedSymbol || !tick?.symbol) return;
       
       const tickSymbol = normalizeSymbol(tick.symbol);
@@ -35,7 +39,8 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
       if (price > updatedCandle.high) updatedCandle.high = price;
       if (price < updatedCandle.low) updatedCandle.low = price;
       
-      seriesRef.current.update(updatedCandle);
+      candlestickSeriesRef.current.update(updatedCandle);
+      areaSeriesRef.current.update({ time: updatedCandle.time, value: price });
       
       // Mutate our ref so the next tick builds on it
       candlesRef.current[candlesRef.current.length - 1] = updatedCandle;
@@ -45,18 +50,23 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
   }, [symbol]);
 
   useEffect(() => {
-    if (!seriesRef.current) return;
+    if (!candlestickSeriesRef.current || !areaSeriesRef.current) return;
     
     // Immediately clear data on symbol change
     candlesRef.current = [];
-    seriesRef.current.setData([]);
-    seriesRef.current.setMarkers([]);
+    candlestickSeriesRef.current.setData([]);
+    areaSeriesRef.current.setData([]);
+    candlestickSeriesRef.current.setMarkers([]);
+    areaSeriesRef.current.setMarkers([]);
     
     if (priceLinesRef.current.length > 0) {
-      priceLinesRef.current.forEach(line => seriesRef.current.removePriceLine(line));
+      const activeSeries = chartType === 'candlestick' ? candlestickSeriesRef.current : areaSeriesRef.current;
+      priceLinesRef.current.forEach(line => {
+        try { activeSeries.removePriceLine(line); } catch(e){}
+      });
       priceLinesRef.current = [];
     }
-  }, [symbol]);
+  }, [symbol]); // removed chartType to avoid clearing on type toggle
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -97,12 +107,24 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
       borderVisible: false,
       wickUpColor: '#22c55e',
       wickDownColor: '#ef4444',
+      visible: chartType === 'candlestick',
     });
     
-    seriesRef.current = candlestickSeries;
+    const areaSeries = chart.addAreaSeries({
+      topColor: 'rgba(34, 197, 94, 0.4)',
+      bottomColor: 'rgba(34, 197, 94, 0.0)',
+      lineColor: '#22c55e',
+      lineWidth: 2,
+      visible: chartType === 'area',
+    });
+
+    candlestickSeriesRef.current = candlestickSeries;
+    areaSeriesRef.current = areaSeries;
 
     if (candles && candles.length > 0) {
       candlestickSeries.setData(candles);
+      const areaData = candles.map(c => ({ time: c.time, value: c.close }));
+      areaSeries.setData(areaData);
     }
 
     const handleResize = () => {
@@ -136,36 +158,89 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
     };
   }, []); // Only run once on mount
 
+  // Handle Chart Type Toggle Visibility
   useEffect(() => {
-    if (!seriesRef.current) return;
+    if (candlestickSeriesRef.current && areaSeriesRef.current) {
+      candlestickSeriesRef.current.applyOptions({ visible: chartType === 'candlestick' });
+      areaSeriesRef.current.applyOptions({ visible: chartType === 'area' });
+    }
+  }, [chartType]);
+
+  // Handle Dynamic Area Chart Coloring based on Bullish/Bearish
+  useEffect(() => {
+    if (!areaSeriesRef.current || !candles || candles.length === 0) return;
+    
+    const latestClose = candles[candles.length - 1].close;
+    const refPrice = previousClose || candles[0].open;
+    const isBullish = latestClose >= refPrice;
+    
+    areaSeriesRef.current.applyOptions({
+      topColor: isBullish ? 'rgba(34, 197, 94, 0.4)' : 'rgba(239, 68, 68, 0.4)',
+      bottomColor: isBullish ? 'rgba(34, 197, 94, 0.0)' : 'rgba(239, 68, 68, 0.0)',
+      lineColor: isBullish ? '#22c55e' : '#ef4444',
+    });
+  }, [candles, previousClose]);
+
+  // Handle Previous Close Line
+  useEffect(() => {
+    if (!areaSeriesRef.current) return;
+    
+    if (prevCloseLineRef.current) {
+      try { areaSeriesRef.current.removePriceLine(prevCloseLineRef.current); } catch(e){}
+      prevCloseLineRef.current = null;
+    }
+    
+    if (previousClose && chartType === 'area') {
+      prevCloseLineRef.current = areaSeriesRef.current.createPriceLine({
+        price: previousClose,
+        color: '#94a3b8',
+        lineWidth: 1,
+        lineStyle: 2, // Dashed
+        axisLabelVisible: true,
+        title: 'PREV CLOSE',
+      });
+    }
+  }, [previousClose, chartType]);
+
+  useEffect(() => {
+    if (!candlestickSeriesRef.current || !areaSeriesRef.current) return;
 
     const nextCandles = candles ? [...candles] : [];
     candlesRef.current = nextCandles;
 
     if (nextCandles.length > 0) {
-      seriesRef.current.setData(nextCandles);
+      candlestickSeriesRef.current.setData(nextCandles);
+      const areaData = nextCandles.map(c => ({ time: c.time, value: c.close }));
+      areaSeriesRef.current.setData(areaData);
+      
       if (!syncTimestamp && !plotData) {
         chartRef.current?.timeScale().fitContent();
       }
     } else {
-      seriesRef.current.setData([]);
+      candlestickSeriesRef.current.setData([]);
+      areaSeriesRef.current.setData([]);
     }
   }, [candles, symbol, syncTimestamp, plotData]);
 
   useEffect(() => {
-    // Clear existing lines
-    if (seriesRef.current && priceLinesRef.current.length > 0) {
-      priceLinesRef.current.forEach(line => seriesRef.current.removePriceLine(line));
+    const activeSeries = chartType === 'candlestick' ? candlestickSeriesRef.current : areaSeriesRef.current;
+    if (!activeSeries) return;
+
+    // Clear existing lines from ALL series to avoid duplicates when switching
+    if (priceLinesRef.current.length > 0) {
+      priceLinesRef.current.forEach(line => {
+        try { candlestickSeriesRef.current?.removePriceLine(line); } catch(e){}
+        try { areaSeriesRef.current?.removePriceLine(line); } catch(e){}
+      });
       priceLinesRef.current = [];
     }
 
-    if (plotData && seriesRef.current) {
+    if (plotData) {
       const { entry, stopLoss, takeProfit, takeProfit1 } = plotData;
-      
       const tp = takeProfit || takeProfit1;
 
       if (entry) {
-        priceLinesRef.current.push(seriesRef.current.createPriceLine({
+        priceLinesRef.current.push(activeSeries.createPriceLine({
           price: parseFloat(entry),
           color: '#3b82f6', // blue
           lineWidth: 2,
@@ -174,9 +249,8 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
           title: 'ENTRY',
         }));
       }
-
       if (stopLoss) {
-        priceLinesRef.current.push(seriesRef.current.createPriceLine({
+        priceLinesRef.current.push(activeSeries.createPriceLine({
           price: parseFloat(stopLoss),
           color: '#ef4444', // red
           lineWidth: 2,
@@ -185,9 +259,8 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
           title: 'SL',
         }));
       }
-
       if (tp) {
-        priceLinesRef.current.push(seriesRef.current.createPriceLine({
+        priceLinesRef.current.push(activeSeries.createPriceLine({
           price: parseFloat(tp),
           color: '#22c55e', // green
           lineWidth: 2,
@@ -197,10 +270,17 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
         }));
       }
     }
-  }, [plotData]);
+  }, [plotData, chartType]);
 
   useEffect(() => {
-    if (syncTimestamp && chartRef.current && seriesRef.current && candles && candles.length > 0) {
+    const activeSeries = chartType === 'candlestick' ? candlestickSeriesRef.current : areaSeriesRef.current;
+    const inactiveSeries = chartType === 'candlestick' ? areaSeriesRef.current : candlestickSeriesRef.current;
+    
+    if (inactiveSeries) {
+      try { inactiveSeries.setMarkers([]); } catch(e) {}
+    }
+
+    if (syncTimestamp && chartRef.current && activeSeries && candles && candles.length > 0) {
       const targetTime = new Date(syncTimestamp).getTime() / 1000;
       
       let targetIndex = -1;
@@ -221,7 +301,7 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
           to: targetIndex + rangeSize / 2
         });
         
-        seriesRef.current.setMarkers([
+        activeSeries.setMarkers([
           {
             time: candles[targetIndex].time,
             position: 'aboveBar',
@@ -231,13 +311,30 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
           }
         ]);
       }
-    } else if (!syncTimestamp && seriesRef.current) {
-      seriesRef.current.setMarkers([]);
+    } else if (!syncTimestamp && activeSeries) {
+      activeSeries.setMarkers([]);
     }
-  }, [syncTimestamp, candles]);
+  }, [syncTimestamp, candles, chartType]);
 
   return (
     <div className="absolute inset-0">
+      
+      {/* Chart Type Toggle UI */}
+      <div className="absolute top-4 right-4 z-20 flex bg-brand-elevated border border-brand-border rounded-lg p-1 shadow-md">
+        <button 
+          onClick={() => setChartType('candlestick')}
+          className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${chartType === 'candlestick' ? 'bg-brand-surface text-brand-purple shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
+        >
+          Candlestick
+        </button>
+        <button 
+          onClick={() => setChartType('area')}
+          className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${chartType === 'area' ? 'bg-brand-surface text-brand-purple shadow-sm' : 'text-brand-muted hover:text-brand-text'}`}
+        >
+          Area
+        </button>
+      </div>
+
       <div ref={chartContainerRef} className="w-full h-full" />
       
       {isLoading && (

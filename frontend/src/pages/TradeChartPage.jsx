@@ -4,6 +4,7 @@ import { ArrowLeft, TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import { createChart } from 'lightweight-charts';
 import socketClient from '../services/socketClient';
 import { apiCall } from '../services/api';
+import CandlestickChart from '../components/Chart/CandlestickChart';
 import TradeModal from '../components/TradeModal';
 import { createTrade } from '../services/tradeService';
 
@@ -29,9 +30,8 @@ export default function TradeChartPage() {
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [tradeType, setTradeType] = useState('BUY');
 
-  const chartContainerRef = useRef(null);
-  const chartRef = useRef(null);
-  const candleSeriesRef = useRef(null);
+  const [chartCandles, setChartCandles] = useState([]);
+  const [chartError, setChartError] = useState(null);
 
   // Real-time price updates
   useEffect(() => {
@@ -43,12 +43,6 @@ export default function TradeChartPage() {
           change: data.change || prev.change,
           changePercent: data.changePercent || prev.changePercent,
         }));
-        
-        // Update latest candle on chart if available
-        if (candleSeriesRef.current && data.price) {
-          // We only update the current candle close price for simplicity
-          // Real implementations would manage open, high, low, close for the active interval
-        }
       }
     });
 
@@ -57,56 +51,17 @@ export default function TradeChartPage() {
     };
   }, [formattedPair]);
 
-  // Fetch historical data and render chart
+  // Fetch historical data
   useEffect(() => {
     let isMounted = true;
-    
-    // Initialize chart immediately if container exists
-    if (!chartRef.current && chartContainerRef.current) {
-      const chart = createChart(chartContainerRef.current, {
-        layout: {
-          background: { type: 'solid', color: 'transparent' },
-          textColor: '#a1a1aa',
-        },
-        grid: {
-          vertLines: { color: 'rgba(39, 39, 42, 0.5)' },
-          horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
-        },
-        crosshair: {
-          mode: 1,
-        },
-        width: chartContainerRef.current.clientWidth,
-        height: 500,
-      });
-
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: '#4ade80',
-        downColor: '#f87171',
-        borderVisible: false,
-        wickUpColor: '#4ade80',
-        wickDownColor: '#f87171',
-      });
-      
-      chartRef.current = chart;
-      candleSeriesRef.current = candleSeries;
-
-      const handleResize = () => {
-        if (chartContainerRef.current && chartRef.current) {
-          chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
-        }
-      };
-      window.addEventListener('resize', handleResize);
-      
-      // Store resize handler for cleanup
-      chartContainerRef.current._handleResize = handleResize;
-    }
 
     const fetchCandles = async () => {
       setIsLoading(true);
+      setChartError(null);
       try {
         const res = await apiCall(`/market/candles?symbol=${formattedPair}&interval=${timeframe}`);
         
-        if (isMounted && res.candles && candleSeriesRef.current) {
+        if (isMounted && res.candles) {
           const formattedData = res.candles.map(d => ({
             time: d.time,
             open: d.open,
@@ -115,8 +70,7 @@ export default function TradeChartPage() {
             close: d.close,
           })).sort((a, b) => a.time - b.time);
 
-          candleSeriesRef.current.setData(formattedData);
-          chartRef.current.timeScale().fitContent();
+          setChartCandles(formattedData);
           
           // Set initial live data based on last candle if empty
           if (formattedData.length > 0) {
@@ -126,6 +80,7 @@ export default function TradeChartPage() {
         }
       } catch (error) {
         console.error('Failed to load chart data:', error);
+        if (isMounted) setChartError(error.message || 'Failed to load chart data');
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -135,24 +90,8 @@ export default function TradeChartPage() {
 
     return () => {
       isMounted = false;
-      // We do NOT destroy the chart here if we want it to persist across timeframe changes
-      // We will only destroy it on component unmount
     };
   }, [formattedPair, timeframe]);
-
-  // Cleanup chart on unmount
-  useEffect(() => {
-    return () => {
-      if (chartContainerRef.current?._handleResize) {
-        window.removeEventListener('resize', chartContainerRef.current._handleResize);
-      }
-      if (chartRef.current) {
-        chartRef.current.remove();
-        chartRef.current = null;
-        candleSeriesRef.current = null;
-      }
-    };
-  }, []);
 
   const handleTradeSubmit = async (formData) => {
     try {
@@ -236,12 +175,12 @@ export default function TradeChartPage() {
 
           {/* Chart Container */}
           <div className="bg-brand-surface border border-brand-border rounded-2xl p-4 relative min-h-[500px]">
-            {isLoading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-brand-surface/50 backdrop-blur-sm rounded-2xl">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-purple"></div>
-              </div>
-            )}
-            <div ref={chartContainerRef} className="w-full h-[500px]" />
+            <CandlestickChart 
+              candles={chartCandles}
+              isLoading={isLoading}
+              error={chartError}
+              symbol={formattedPair}
+            />
           </div>
         </div>
 
