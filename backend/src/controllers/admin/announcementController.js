@@ -23,7 +23,7 @@ exports.createAnnouncement = async (req, res) => {
     const newAnnouncement = new Announcement({
       title,
       content,
-      author: req.user._id, // Assume authMiddleware sets req.user
+      author: req.user.id, // Fixed: authMiddleware sets req.user.id
       isPublished: isPublished !== undefined ? isPublished : true,
     });
 
