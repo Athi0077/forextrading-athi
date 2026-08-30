@@ -59,6 +59,10 @@ function connectTwelveData() {
     try {
       const parsed = JSON.parse(data);
       
+      if (parsed.status === 'error') {
+        console.error('Twelve Data server error message:', parsed);
+      }
+      
       if (parsed.event === 'price' && parsed.symbol === 'XAU/USD') {
         const tick = {
           symbol: parsed.symbol,
@@ -70,6 +74,8 @@ function connectTwelveData() {
         io.emit('price_update', tick);
       } else if (parsed.event === 'heartbeat') {
         // Handle heartbeat silently or respond if necessary
+      } else if (parsed.event !== 'price' && parsed.event !== 'heartbeat') {
+        console.log('Twelve Data msg:', parsed);
       }
     } catch (err) {
       console.error('Error parsing Twelve Data WS message:', err);
@@ -80,8 +86,14 @@ function connectTwelveData() {
     console.error('Twelve Data WebSocket error:', err);
   });
 
-  tdWs.on('close', () => {
-    console.log('Twelve Data WebSocket closed. Reconnecting in 5s...');
+  tdWs.on('close', (code, reason) => {
+    console.log('Twelve Data WebSocket closed:');
+    console.log('code:', code);
+    console.log('reason:', reason ? reason.toString() : '');
+    console.log('intentionalClose:', code === 1000 || code === 1001 || code === 1005);
+    console.log('subscriptions:', 'XAU/USD');
+    console.log('activeConnections:', 1);
+    console.log('Reconnecting in 5s...');
     setTimeout(connectTwelveData, 5000);
   });
 }

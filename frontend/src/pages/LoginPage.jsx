@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LineChart, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import TermsCondition from '../components/TermsCondition';
+import logo from '../assets/logo.jpeg';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -47,7 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-brand-darker px-4">
       <div className="max-w-md w-full space-y-8 bg-brand-dark p-8 rounded-2xl border border-slate-800 shadow-xl">
         <div className="text-center">
-          <LineChart className="mx-auto h-12 w-12 text-brand-gold" />
+          <img src={logo} alt="ForexTrading Logo" className="mx-auto h-16 w-auto object-contain rounded-xl" />
           <h2 className="mt-6 text-3xl font-extrabold text-white">
             Sign in to your account
           </h2>

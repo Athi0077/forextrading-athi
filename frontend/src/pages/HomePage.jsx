@@ -8,6 +8,8 @@ import { createChart } from 'lightweight-charts';
 import { getPortfolioAnalytics, getTrades, createTrade, updateTrade, closeTrade } from '../services/tradeService';
 import TradeModal from '../components/TradeModal';
 import CloseTradeModal from '../components/CloseTradeModal';
+import AnnouncementModal from '../components/AnnouncementModal';
+import { apiCall } from '../services/api';
 
 export default function HomePage() {
   const { currentUser } = useAuth();
@@ -24,6 +26,9 @@ export default function HomePage() {
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [currentTrade, setCurrentTrade] = useState(null);
+  
+  const [unseenAnnouncements, setUnseenAnnouncements] = useState([]);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
 
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
@@ -56,8 +61,26 @@ export default function HomePage() {
       }
     };
 
+    const fetchAnnouncements = async () => {
+      try {
+        const res = await apiCall('/announcements/active');
+        if (res.data && res.data.length > 0) {
+          const seenStr = localStorage.getItem('seenAnnouncements');
+          const seenIds = seenStr ? JSON.parse(seenStr) : [];
+          const unseen = res.data.filter(ann => !seenIds.includes(ann._id));
+          if (unseen.length > 0) {
+            setUnseenAnnouncements(unseen);
+            setShowAnnouncementModal(true);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch announcements:', error);
+      }
+    };
+
     fetchInsight();
     fetchPortfolioData();
+    fetchAnnouncements();
 
     // Connect WebSocket for live prices
     const cleanupSocket = socketClient.onPriceUpdate((data) => {
@@ -172,6 +195,17 @@ export default function HomePage() {
       console.error(err);
       alert('Failed to close trade.');
     }
+  };
+
+  const handleCloseAnnouncements = () => {
+    const seenStr = localStorage.getItem('seenAnnouncements');
+    const seenIds = seenStr ? JSON.parse(seenStr) : [];
+    
+    // Add newly seen IDs
+    const newSeenIds = [...new Set([...seenIds, ...unseenAnnouncements.map(a => a._id)])];
+    localStorage.setItem('seenAnnouncements', JSON.stringify(newSeenIds));
+    
+    setShowAnnouncementModal(false);
   };
 
   const getLivePnl = (trade) => {
@@ -408,6 +442,13 @@ export default function HomePage() {
 
       <TradeModal isOpen={isTradeModalOpen} onClose={() => setIsTradeModalOpen(false)} onSubmit={handleTradeSubmit} initialData={currentTrade} />
       <CloseTradeModal isOpen={isCloseModalOpen} onClose={() => setIsCloseModalOpen(false)} onSubmit={handleCloseSubmit} trade={currentTrade} />
+      
+      {showAnnouncementModal && (
+        <AnnouncementModal 
+          announcements={unseenAnnouncements} 
+          onClose={handleCloseAnnouncements} 
+        />
+      )}
     </div>
   );
 }

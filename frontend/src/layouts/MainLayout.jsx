@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import logo from '../assets/logo.jpeg';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   LogOut, 
@@ -110,8 +111,8 @@ export default function MainLayout() {
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-brand-surface border-r border-brand-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex items-center justify-between h-20 px-6 bg-transparent">
           <Link to="/home" className="flex items-center space-x-3 group">
-            <div className="p-2 rounded-xl bg-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
-              <LineChart className="h-6 w-6 text-brand-accent" />
+            <div className="p-1 rounded-xl bg-brand-accent/10 group-hover:bg-brand-accent/20 transition-all">
+              <img src={logo} alt="Logo" className="h-8 w-auto object-contain rounded-lg" />
             </div>
             <span className="text-xl font-bold tracking-tight text-brand-text">
               FOREX<span className="text-brand-accent">AI</span>
@@ -169,8 +170,8 @@ export default function MainLayout() {
             <Menu className="h-6 w-6" />
           </button>
           <div className="flex items-center space-x-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-brand-purple/20 to-brand-pink/20">
-              <LineChart className="h-5 w-5 text-brand-purple" />
+            <div className="p-1 rounded-lg bg-gradient-to-br from-brand-purple/20 to-brand-pink/20">
+              <img src={logo} alt="Logo" className="h-7 w-auto object-contain rounded-md" />
             </div>
             <span className="font-bold text-white tracking-tight">FOREX<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink">AI</span></span>
           </div>

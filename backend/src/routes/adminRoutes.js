@@ -38,7 +38,12 @@ router.get('/ai', (req, res) => res.json({ success: true, data: { totalRequests:
 router.get('/subscriptions', (req, res) => res.json({ success: true, data: [] }));
 router.get('/payments', (req, res) => res.json({ success: true, data: [] }));
 router.get('/support', (req, res) => res.json({ success: true, data: [] }));
-router.get('/announcements', (req, res) => res.json({ success: true, data: [] }));
-router.post('/announcements', (req, res) => res.json({ success: true, data: {} }));
+const announcementController = require('../controllers/admin/announcementController');
+
+// Announcements
+router.get('/announcements', announcementController.getAllAnnouncements);
+router.post('/announcements', announcementController.createAnnouncement);
+router.put('/announcements/:id/toggle', announcementController.togglePublishStatus);
+router.delete('/announcements/:id', announcementController.deleteAnnouncement);
 
 module.exports = router;

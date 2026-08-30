@@ -30,6 +30,7 @@ app.use('/api/trades', require('./routes/tradeRoutes'));
 app.use('/api/tools', require('./routes/toolsRoutes'));
 app.use('/api/support', require('./routes/supportRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/announcements', require('./routes/announcementRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {

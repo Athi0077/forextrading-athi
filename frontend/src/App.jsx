@@ -20,6 +20,7 @@ import AdminDashboardPage from './pages/admin/DashboardPage';
 import AdminUsersPage from './pages/admin/UsersPage';
 import AdminTradingActivityPage from './pages/admin/TradingActivityPage';
 import AdminSettingsPage from './pages/admin/SettingsPage';
+import AdminAnnouncementsPage from './pages/admin/AdminAnnouncementsPage';
 
 function App() {
   return (
@@ -116,7 +117,7 @@ function App() {
           <Route path="payments" element={<div className="p-8 text-zinc-400">Payments Page (Coming Soon)</div>} />
           <Route path="subscriptions" element={<div className="p-8 text-zinc-400">Subscriptions Page (Coming Soon)</div>} />
           <Route path="support" element={<div className="p-8 text-zinc-400">Support Management (Coming Soon)</div>} />
-          <Route path="announcements" element={<div className="p-8 text-zinc-400">Announcements (Coming Soon)</div>} />
+          <Route path="announcements" element={<AdminAnnouncementsPage />} />
           <Route path="ai" element={<div className="p-8 text-zinc-400">AI Config (Coming Soon)</div>} />
           <Route path="logs" element={<div className="p-8 text-zinc-400">Security Logs (Coming Soon)</div>} />
           <Route path="settings" element={<AdminSettingsPage />} />
