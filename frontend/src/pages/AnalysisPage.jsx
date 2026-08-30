@@ -112,13 +112,13 @@ export default function AnalysisPage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)] bg-[#09090b] text-brand-text">
+    <div className="flex flex-col lg:flex-row min-h-[calc(100vh-4rem)] bg-brand-base text-brand-text">
       
       {/* Left Column: Chart & Trade Action */}
       <div className="w-full lg:w-2/3 flex flex-col border-b lg:border-b-0 lg:border-r border-brand-border">
         
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-brand-border bg-[#0c0c0e]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-brand-border bg-brand-surface">
           <div className="flex items-center space-x-6">
             <div>
               <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
@@ -159,7 +159,7 @@ export default function AnalysisPage() {
         </div>
         
         {/* Chart Area */}
-        <div className="flex-1 relative min-h-[400px] lg:min-h-0 bg-[#09090b]">
+        <div className="flex-1 relative min-h-[400px] lg:min-h-0 bg-brand-base">
           <CandlestickChart 
             candles={chartCandles} 
             isLoading={isChartLoading && chartCandles.length === 0} 
@@ -168,7 +168,7 @@ export default function AnalysisPage() {
         </div>
 
         {/* Trade Action Area */}
-        <div className="p-4 bg-[#0c0c0e] border-t border-brand-border">
+        <div className="p-4 bg-brand-surface border-t border-brand-border">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-brand-text flex items-center">
               <Crosshair className="w-4 h-4 mr-2 text-brand-purple" />
@@ -229,7 +229,7 @@ export default function AnalysisPage() {
       </div>
 
       {/* Right Column: Info & AI Panels */}
-      <div className="w-full lg:w-1/3 flex flex-col bg-[#0c0c0e] overflow-y-auto">
+      <div className="w-full lg:w-1/3 flex flex-col bg-brand-surface overflow-y-auto">
         
         {/* Chart Information Panel */}
         <div className="p-4 lg:p-6 border-b border-brand-border">
@@ -284,7 +284,7 @@ export default function AnalysisPage() {
         </div>
 
         {/* AI Analysis Panel */}
-        <div className="p-4 lg:p-6 flex-1 bg-gradient-to-br from-[#0c0c0e] to-brand-surface">
+        <div className="p-4 lg:p-6 flex-1 bg-gradient-to-br from-brand-surface to-brand-surface">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink flex items-center">
               <Zap className="w-4 h-4 mr-2 text-brand-purple" />

@@ -38,20 +38,24 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
+    const isLightMode = document.body.classList.contains('theme-light');
+    const textColor = isLightMode ? '#64748b' : '#94a3b8';
+    const gridColor = isLightMode ? '#e2e8f0' : '#1e293b';
+
     const chartOptions = {
       layout: {
         background: { type: 'solid', color: 'transparent' },
-        textColor: '#94a3b8',
+        textColor: textColor,
       },
       grid: {
-        vertLines: { color: '#1e293b' },
-        horzLines: { color: '#1e293b' },
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
       },
       crosshair: {
         mode: 0,
       },
       timeScale: {
-        borderColor: '#1e293b',
+        borderColor: gridColor,
         timeVisible: true,
       },
     };
@@ -89,8 +93,22 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
 
     window.addEventListener('resize', handleResize);
 
+    const observer = new MutationObserver(() => {
+      const light = document.body.classList.contains('theme-light');
+      chart.applyOptions({
+        layout: { textColor: light ? '#64748b' : '#94a3b8' },
+        grid: {
+          vertLines: { color: light ? '#e2e8f0' : '#1e293b' },
+          horzLines: { color: light ? '#e2e8f0' : '#1e293b' },
+        },
+        timeScale: { borderColor: light ? '#e2e8f0' : '#1e293b' }
+      });
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
     return () => {
       window.removeEventListener('resize', handleResize);
+      observer.disconnect();
       chart.remove();
     };
   }, []); // Only run once on mount
@@ -193,13 +211,13 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
       <div ref={chartContainerRef} className="w-full h-full" />
       
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-brand-dark/50 backdrop-blur-sm z-10">
+        <div className="absolute inset-0 flex items-center justify-center bg-brand-elevated/50 backdrop-blur-sm z-10">
           <div className="w-10 h-10 border-4 border-slate-700 border-t-brand-gold rounded-full animate-spin"></div>
         </div>
       )}
 
       {error && !isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-brand-dark/80 backdrop-blur-sm z-10 p-4">
+        <div className="absolute inset-0 flex items-center justify-center bg-brand-elevated/80 backdrop-blur-sm z-10 p-4">
           <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-4 rounded-lg text-center max-w-md">
             <p className="font-semibold mb-1">Error Loading Chart</p>
             <p className="text-sm">{error}</p>

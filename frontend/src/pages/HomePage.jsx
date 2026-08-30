@@ -105,14 +105,18 @@ export default function HomePage() {
     if (!chartContainerRef.current) return;
     
     if (!chartRef.current) {
+      const isLightMode = document.body.classList.contains('theme-light');
+      const textColor = isLightMode ? '#64748b' : '#a1a1aa';
+      const gridColor = isLightMode ? 'rgba(226, 232, 240, 1)' : 'rgba(39, 39, 42, 0.5)';
+
       const chart = createChart(chartContainerRef.current, {
         layout: {
           background: { type: 'solid', color: 'transparent' },
-          textColor: '#a1a1aa', // zinc-400
+          textColor: textColor,
         },
         grid: {
-          vertLines: { color: 'rgba(39, 39, 42, 0.5)' }, // zinc-800
-          horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
+          vertLines: { color: gridColor },
+          horzLines: { color: gridColor },
         },
         width: chartContainerRef.current.clientWidth,
         height: 300,
@@ -132,9 +136,22 @@ export default function HomePage() {
       };
       window.addEventListener('resize', handleResize);
 
+      const observer = new MutationObserver(() => {
+        const light = document.body.classList.contains('theme-light');
+        chart.applyOptions({
+          layout: { textColor: light ? '#64748b' : '#a1a1aa' },
+          grid: {
+            vertLines: { color: light ? 'rgba(226, 232, 240, 1)' : 'rgba(39, 39, 42, 0.5)' },
+            horzLines: { color: light ? 'rgba(226, 232, 240, 1)' : 'rgba(39, 39, 42, 0.5)' },
+          }
+        });
+      });
+      observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
       // Cleanup
       return () => {
         window.removeEventListener('resize', handleResize);
+        observer.disconnect();
         chart.remove();
         chartRef.current = null;
       };

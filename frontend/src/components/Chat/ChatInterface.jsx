@@ -198,16 +198,16 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
 
   if (!isHistoryLoaded) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-brand-dark">
+      <div className="flex-1 flex items-center justify-center bg-brand-elevated">
         <div className="w-6 h-6 border-2 border-slate-700 border-t-brand-gold rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-brand-dark overflow-hidden relative">
+    <div className="flex-1 flex flex-col h-full bg-brand-elevated overflow-hidden relative">
       {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-slate-800 bg-brand-darker">
+      <div className="flex items-center justify-between p-3 border-b border-slate-800 bg-brand-surface">
         <button 
           onClick={handleNewChat}
           className="flex items-center gap-2 px-3 py-1.5 rounded bg-brand-gold text-brand-darker text-sm font-semibold hover:bg-brand-goldHover transition-colors"
@@ -335,7 +335,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
       </div>
 
       {/* Quick Actions / Starter Questions */}
-      <div className="px-4 py-3 flex overflow-x-auto space-x-2 border-t border-slate-800 bg-brand-darker scrollbar-hide">
+      <div className="px-4 py-3 flex overflow-x-auto space-x-2 border-t border-slate-800 bg-brand-surface scrollbar-hide">
         {STARTER_QUESTIONS.map((q, i) => (
           <button
             key={i}
@@ -349,7 +349,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-brand-darker">
+      <div className="p-4 bg-brand-surface">
         <form
           onSubmit={(e) => {
             e.preventDefault();

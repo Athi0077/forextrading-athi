@@ -152,7 +152,7 @@ export default function TradeJournalPage() {
       </div>
 
       {/* Trade Table */}
-      <div className="bg-[#0c0c0e] border border-brand-border rounded-2xl overflow-hidden">
+      <div className="bg-brand-surface border border-brand-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-brand-surface text-xs uppercase text-brand-muted opacity-80">

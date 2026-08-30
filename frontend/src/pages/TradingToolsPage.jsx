@@ -209,7 +209,7 @@ export default function TradingToolsPage() {
         </button>
       </div>
 
-      <div className="bg-[#0c0c0e] border border-brand-border rounded-2xl p-6 min-h-[500px]">
+      <div className="bg-brand-surface border border-brand-border rounded-2xl p-6 min-h-[500px]">
         
         {/* RISK CALCULATOR */}
         {activeTab === 'RISK' && (
@@ -408,7 +408,7 @@ export default function TradingToolsPage() {
       {/* CREATE ALERT MODAL */}
       {isAlertModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#0c0c0e] border border-brand-border/80 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+          <div className="bg-brand-surface border border-brand-border/80 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
             <div className="flex items-center justify-between p-5 border-b border-brand-border">
               <h3 className="text-lg font-bold text-brand-text flex items-center"><Bell className="w-4 h-4 mr-2 text-brand-pink" /> Create Alert</h3>
               <button onClick={() => setIsAlertModalOpen(false)} className="text-brand-muted hover:text-brand-text"><X className="w-5 h-5" /></button>
