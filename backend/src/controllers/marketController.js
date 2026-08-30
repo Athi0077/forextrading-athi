@@ -1,4 +1,4 @@
-const { getCandles } = require('../services/twelveDataService');
+const { getCandles, getQuotes } = require('../services/twelveDataService');
 
 const getMarketData = async (req, res, next) => {
   try {
@@ -25,6 +25,26 @@ const getMarketData = async (req, res, next) => {
   }
 };
 
+const getMarketQuotes = async (req, res, next) => {
+  try {
+    const { symbols } = req.query;
+    
+    if (!symbols) {
+      return res.status(400).json({ success: false, error: 'Symbols parameter is required (e.g. EUR/USD,GBP/USD)' });
+    }
+
+    const quotes = await getQuotes(symbols);
+
+    res.json({
+      success: true,
+      quotes
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message || 'Market quotes are temporarily unavailable.' });
+  }
+};
+
 module.exports = {
-  getMarketData
+  getMarketData,
+  getMarketQuotes
 };

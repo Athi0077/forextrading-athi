@@ -137,6 +137,33 @@ async function getCandles(symbol, interval, outputsize = 150) {
   }
 }
 
+async function getQuotes(symbols) {
+  if (!API_KEY) {
+    throw new Error('Missing TWELVE_DATA_API_KEY');
+  }
+
+  try {
+    const response = await axios.get('https://api.twelvedata.com/quote', {
+      params: {
+        symbol: symbols,
+        apikey: API_KEY,
+        format: 'JSON'
+      }
+    });
+
+    const data = response.data;
+    if (data.status === 'error') {
+      throw new Error(data.message || 'Twelve Data API Error');
+    }
+
+    return data;
+  } catch (error) {
+    console.error(`Error fetching quotes for ${symbols}:`, error.message);
+    throw new Error('Market quotes are temporarily unavailable. Please try again.');
+  }
+}
+
 module.exports = {
-  getCandles
+  getCandles,
+  getQuotes
 };

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Bell, TrendingUp, TrendingDown, Clock, Activity, Zap, ChevronRight, BarChart2, Briefcase, Bot, Eye, Plus, Check } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getMarketAnalysis } from '../services/marketAnalysis';
+import { getMarketAnalysis, getMarketQuotes } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
 import { createChart } from 'lightweight-charts';
 import { getPortfolioAnalytics, getTrades, createTrade, updateTrade, closeTrade } from '../services/tradeService';
@@ -15,11 +15,7 @@ export default function HomePage() {
   const { currentUser, fetchUser } = useAuth();
   const [insight, setInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(true);
-  const [livePrices, setLivePrices] = useState({
-    'XAU/USD': { price: 2024.50, change: 0.15 }, // Fallback initial state, will be updated by socket
-    'EUR/USD': { price: 1.0845, change: -0.05 },
-    'GBP/USD': { price: 1.2650, change: 0.22 },
-  });
+  const [livePrices, setLivePrices] = useState({});
   
   const [analytics, setAnalytics] = useState(null);
   const [openTrades, setOpenTrades] = useState([]);
@@ -78,6 +74,25 @@ export default function HomePage() {
       }
     };
 
+    const fetchQuotes = async () => {
+      try {
+        const data = await getMarketQuotes('XAU/USD,EUR/USD,GBP/USD');
+        const newPrices = {};
+        ['XAU/USD', 'EUR/USD', 'GBP/USD'].forEach(sym => {
+          if (data && data[sym]) {
+            newPrices[sym] = {
+              price: parseFloat(data[sym].close || data[sym].open || 0),
+              change: parseFloat(data[sym].percent_change || 0)
+            };
+          }
+        });
+        setLivePrices(newPrices);
+      } catch (err) {
+        console.error('Failed to fetch initial quotes:', err);
+      }
+    };
+
+    fetchQuotes();
     fetchInsight();
     fetchPortfolioData();
     fetchAnnouncements();
@@ -369,28 +384,48 @@ export default function HomePage() {
             </div>
             
             <div className="space-y-4">
-              {Object.entries(livePrices).map(([pair, data]) => {
-                const isPositive = data.change >= 0;
-                return (
-                  <div key={pair} className="flex items-center justify-between p-3 rounded-xl hover:bg-brand-elevated transition-colors border border-transparent hover:border-brand-border cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                        {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              {Object.entries(livePrices).length === 0 ? (
+                <div className="animate-pulse space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex justify-between p-3">
+                      <div className="flex space-x-3">
+                        <div className="w-8 h-8 bg-brand-elevated rounded-lg"></div>
+                        <div>
+                          <div className="h-4 w-16 bg-brand-elevated rounded mb-1"></div>
+                          <div className="h-3 w-10 bg-brand-elevated rounded"></div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-brand-text">{pair}</p>
-                        <p className="text-xs text-brand-muted opacity-80">Forex</p>
+                      <div className="text-right">
+                        <div className="h-4 w-12 bg-brand-elevated rounded mb-1 ml-auto"></div>
+                        <div className="h-3 w-8 bg-brand-elevated rounded ml-auto"></div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-brand-text">{data.price.toFixed(5)}</p>
-                      <p className={`text-xs font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                        {isPositive ? '+' : ''}{data.change.toFixed(2)}%
-                      </p>
+                  ))}
+                </div>
+              ) : (
+                Object.entries(livePrices).map(([pair, data]) => {
+                  const isPositive = data.change >= 0;
+                  return (
+                    <div key={pair} className="flex items-center justify-between p-3 rounded-xl hover:bg-brand-elevated transition-colors border border-transparent hover:border-brand-border cursor-pointer">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                          {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-brand-text">{pair}</p>
+                          <p className="text-xs text-brand-muted opacity-80">{pair === 'XAU/USD' ? 'Commodity' : 'Forex'}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-brand-text">{data.price.toFixed(pair === 'XAU/USD' ? 2 : 5)}</p>
+                        <p className={`text-xs font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+                          {isPositive ? '+' : ''}{data.change.toFixed(2)}%
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 

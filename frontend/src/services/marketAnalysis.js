@@ -23,3 +23,16 @@ export const getMarketCandles = async (symbol, interval, outputsize = 100) => {
     throw error;
   }
 };
+
+export const getMarketQuotes = async (symbols) => {
+  try {
+    // symbols is a comma separated string, e.g. 'EUR/USD,GBP/USD'
+    const result = await apiCall(`/market/quotes?symbols=${encodeURIComponent(symbols)}`, {
+      method: 'GET'
+    });
+    return result.quotes;
+  } catch (error) {
+    console.error(`Error fetching quotes for ${symbols}:`, error);
+    throw error;
+  }
+};
