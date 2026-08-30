@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { AlertCircle } from 'lucide-react';
 import TermsCondition from '../components/TermsCondition';
 import logo from '../assets/logo.jpeg';
+import bgVideo from '../assets/bgvideo.mp4';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -35,8 +36,22 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-darker px-4">
-      <div className="max-w-md w-full space-y-8 bg-brand-dark p-8 rounded-2xl border border-slate-800 shadow-xl">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+      {/* Video Background */}
+      <video 
+        autoPlay 
+        loop 
+        muted 
+        playsInline 
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      >
+        <source src={bgVideo} type="video/mp4" />
+      </video>
+      
+      {/* Overlay to darken video */}
+      <div className="absolute inset-0 bg-black/60 z-0"></div>
+
+      <div className="relative z-10 max-w-md w-full space-y-8 bg-brand-dark/90 backdrop-blur-md p-8 rounded-2xl border border-slate-800 shadow-xl">
         <div className="text-center">
           <img src={logo} alt="ForexTrading Logo" className="mx-auto h-16 w-auto object-contain rounded-xl" />
           <h2 className="mt-6 text-3xl font-extrabold text-white">
