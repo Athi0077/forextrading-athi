@@ -349,7 +349,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-brand-surface">
+      <div className="p-4 pb-[100px] bg-brand-surface">
         <form
           onSubmit={(e) => {
             e.preventDefault();
