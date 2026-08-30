@@ -30,7 +30,7 @@ const registerUser = async (req, res) => {
       success: true,
       data: {
         token: generateToken(user._id),
-        user: { id: user._id, name: user.name, email: user.email, role: user.role, themePreferences: user.themePreferences }
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, balance: user.balance, themePreferences: user.themePreferences }
       }
     });
   } catch (error) {
@@ -64,7 +64,7 @@ const loginUser = async (req, res) => {
       success: true,
       data: {
         token: generateToken(user._id),
-        user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, themePreferences: user.themePreferences }
+        user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, balance: user.balance, themePreferences: user.themePreferences }
       }
     });
   } catch (error) {
@@ -104,7 +104,7 @@ const getMe = async (req, res) => {
     }
     res.json({
       success: true,
-      data: { user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, createdAt: user.createdAt, themePreferences: user.themePreferences } }
+      data: { user: { id: user._id, name: user.name, email: user.email, role: user.role, avatar: user.avatar, balance: user.balance, createdAt: user.createdAt, themePreferences: user.themePreferences } }
     });
   } catch (error) {
     res.status(500).json({ success: false, error: { code: 'SERVER_ERROR', message: error.message } });

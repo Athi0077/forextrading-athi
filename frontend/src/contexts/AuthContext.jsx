@@ -11,19 +11,23 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchUser = async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const res = await apiCall('/auth/me', { method: 'GET' });
+        setCurrentUser(res.data.user);
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+        localStorage.removeItem('token');
+        setCurrentUser(null);
+      }
+    }
+  };
+
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const res = await apiCall('/auth/me', { method: 'GET' });
-          setCurrentUser(res.data.user);
-        } catch (error) {
-          console.error("Failed to fetch user profile:", error);
-          localStorage.removeItem('token');
-          setCurrentUser(null);
-        }
-      }
+      await fetchUser();
       setLoading(false);
     };
 
@@ -84,7 +88,8 @@ export function AuthProvider({ children }) {
     loading,
     login,
     register,
-    logout
+    logout,
+    fetchUser
   };
 
   return (

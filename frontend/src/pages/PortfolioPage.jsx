@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createChart } from 'lightweight-charts';
 import { Activity, TrendingUp, TrendingDown, Zap, PieChart, BarChart3, Plus, Check, Edit2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import { getPortfolioAnalytics, getPerformanceInsight, getTrades, createTrade, updateTrade, closeTrade } from '../services/tradeService';
 import TradeModal from '../components/TradeModal';
 import CloseTradeModal from '../components/CloseTradeModal';
 
 export default function PortfolioPage() {
+  const { currentUser, fetchUser } = useAuth();
   const navigate = useNavigate();
   const [analytics, setAnalytics] = useState(null);
   const [insight, setInsight] = useState('');
@@ -34,6 +36,7 @@ export default function PortfolioPage() {
         setAnalytics(analyticsData);
         setInsight(insightData?.insight || 'No insight available yet.');
         setOpenTrades(tradesData?.filter(t => t.status === 'OPEN') || []);
+        if (fetchUser) await fetchUser();
       } catch (error) {
         console.error('Failed to load portfolio:', error);
       } finally {
@@ -51,6 +54,7 @@ export default function PortfolioPage() {
       ]);
       setAnalytics(analyticsData);
       setOpenTrades(tradesData?.filter(t => t.status === 'OPEN') || []);
+      if (fetchUser) await fetchUser();
     } catch (error) {
       console.error(error);
     }
@@ -225,10 +229,10 @@ export default function PortfolioPage() {
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-5 col-span-2 lg:col-span-2 relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-16 h-16 bg-brand-purple/10 rounded-bl-full -mr-4 -mt-4 transition-all group-hover:scale-110"></div>
-          <p className="text-sm font-medium text-zinc-500 mb-2">Total Balance</p>
-          <p className="text-3xl font-black text-white">
-            ${(10000 + (stats.totalPnL || 0)).toFixed(2)}
-          </p>
+            <p className="text-sm font-medium text-zinc-500 mb-2">Total Balance</p>
+            <p className="text-3xl font-black text-white">
+              ${(currentUser?.balance || 0).toFixed(2)}
+            </p>
         </div>
         <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-5">
           <p className="text-sm font-medium text-zinc-500 mb-2">Total P/L</p>

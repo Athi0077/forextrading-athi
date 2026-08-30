@@ -12,7 +12,7 @@ import AnnouncementModal from '../components/AnnouncementModal';
 import { apiCall } from '../services/api';
 
 export default function HomePage() {
-  const { currentUser } = useAuth();
+  const { currentUser, fetchUser } = useAuth();
   const [insight, setInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(true);
   const [livePrices, setLivePrices] = useState({
@@ -162,6 +162,7 @@ export default function HomePage() {
       ]);
       setAnalytics(statsData);
       setOpenTrades(tradesData?.filter(t => t.status === 'OPEN') || []);
+      if (fetchUser) await fetchUser();
     } catch (error) {
       console.error(error);
     }
@@ -277,7 +278,7 @@ export default function HomePage() {
             <div>
               <p className="text-xs text-zinc-500 mb-1">Total Balance</p>
               <p className="text-2xl font-bold text-white">
-                ${analytics?.stats ? (10000 + analytics.stats.totalPnL).toFixed(2) : '10,000.00'}
+                ${(currentUser?.balance || 0).toFixed(2)}
               </p>
             </div>
             <div>

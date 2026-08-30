@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
   lastLoginAt: Date,
   lastSeen: Date,
   isOnline: { type: Boolean, default: false },
+  balance: { type: Number, default: 0 },
   status: { type: String, enum: ['active', 'blocked'], default: 'active' },
   isPremium: { type: Boolean, default: false },
   themePreferences: {

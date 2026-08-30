@@ -1,4 +1,5 @@
 const Trade = require('../models/Trade');
+const User = require('../models/User');
 const { callOpenRouter } = require('../services/openRouterService');
 
 // Get all trades for user
@@ -93,6 +94,11 @@ const closeTrade = async (req, res, next) => {
     trade.exitDate = exitDate || new Date();
     
     await trade.save(); // This triggers the pre-save hook for PnL and status
+
+    // Update user's balance with the finalized PnL
+    await User.findByIdAndUpdate(req.user.id, {
+      $inc: { balance: trade.pnl }
+    });
 
     res.json({ success: true, data: trade });
   } catch (error) {
