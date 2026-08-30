@@ -1,13 +1,40 @@
 const User = require('../../models/User');
 const Trade = require('../../models/Trade');
+const Conversation = require('../../models/Conversation');
+const Message = require('../../models/Message');
 const { callAdminOpenRouter } = require('../../services/adminOpenRouterService');
+const { generateChatTitle } = require('../../services/openRouterService');
 
 exports.chatWithAdminAi = async (req, res, next) => {
   try {
-    const { messages, commissionPercentage = 20 } = req.body;
+    const { messages, commissionPercentage = 20, conversationId } = req.body;
 
     if (!messages || !Array.isArray(messages)) {
       return res.status(400).json({ success: false, message: 'Messages array is required.' });
+    }
+
+    let conversation;
+    if (conversationId) {
+      conversation = await Conversation.findOne({ _id: conversationId, userId: req.user.id });
+    }
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        userId: req.user.id,
+        title: 'New Admin Chat',
+        type: 'admin'
+      });
+    }
+
+    // Save user's message
+    const latestUserMessage = messages[messages.length - 1];
+    if (latestUserMessage && latestUserMessage.role === 'user') {
+      await Message.create({
+        conversationId: conversation._id,
+        userId: req.user.id,
+        role: 'user',
+        content: latestUserMessage.content
+      });
     }
 
     const now = new Date();
@@ -85,11 +112,35 @@ exports.chatWithAdminAi = async (req, res, next) => {
 
     const aiResponseContent = await callAdminOpenRouter(messages, adminContext);
 
+    // Save AI's response
+    const aiMsg = await Message.create({
+      conversationId: conversation._id,
+      userId: req.user.id,
+      role: 'assistant',
+      content: aiResponseContent
+    });
+
+    conversation.updatedAt = new Date();
+    await conversation.save();
+
+    // Auto-generate title if it's the default
+    if (conversation.title === 'New Admin Chat' && latestUserMessage) {
+      generateChatTitle(latestUserMessage.content).then(newTitle => {
+        if (newTitle && newTitle !== "XAU/USD Chat") {
+          conversation.title = newTitle;
+          conversation.save().catch(err => console.error("Failed to save admin chat title:", err));
+        }
+      });
+    }
+
     res.json({
       success: true,
       data: {
+        id: aiMsg._id,
+        conversationId: conversation._id,
         role: 'assistant',
-        content: aiResponseContent
+        content: aiResponseContent,
+        createdAt: aiMsg.createdAt
       }
     });
 

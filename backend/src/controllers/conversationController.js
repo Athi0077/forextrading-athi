@@ -3,7 +3,8 @@ const Message = require('../models/Message');
 
 const getConversations = async (req, res, next) => {
   try {
-    const conversations = await Conversation.find({ userId: req.user.id })
+    const type = req.query.type || 'trader';
+    const conversations = await Conversation.find({ userId: req.user.id, type })
       .sort({ updatedAt: -1 });
     
     res.json({ success: true, data: conversations });

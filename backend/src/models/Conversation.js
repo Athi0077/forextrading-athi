@@ -14,6 +14,11 @@ const conversationSchema = new mongoose.Schema({
   symbol: {
     type: String,
     default: 'XAU/USD'
+  },
+  type: {
+    type: String,
+    enum: ['trader', 'admin'],
+    default: 'trader'
   }
 }, { timestamps: true });
 
