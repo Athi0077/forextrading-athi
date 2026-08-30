@@ -67,8 +67,7 @@ async function callOpenRouter(messages, marketContext) {
       {
         model: AI_MODEL,
         messages: formattedMessages,
-        response_format: { type: 'json_object' },
-        max_tokens: 500
+        response_format: { type: 'json_object' }
       },
       {
         headers: {
@@ -115,8 +114,7 @@ async function generateChatTitle(firstMessage) {
         messages: [
           { role: 'system', content: 'Generate a very short, 3-4 word title summarizing this user question. Respond ONLY with the title string, no quotes, no extra text.' },
           { role: 'user', content: firstMessage }
-        ],
-        max_tokens: 15
+        ]
       },
       {
         headers: {

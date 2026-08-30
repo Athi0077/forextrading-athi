@@ -40,8 +40,7 @@ async function callAdminOpenRouter(messages, adminContext) {
       'https://openrouter.ai/api/v1/chat/completions',
       {
         model: AI_MODEL,
-        messages: formattedMessages,
-        max_tokens: 1000
+        messages: formattedMessages
       },
       {
         headers: {
