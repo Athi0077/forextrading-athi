@@ -44,11 +44,11 @@ function connectTwelveData() {
   tdWs.on('open', () => {
     console.log('Connected to Twelve Data WebSocket');
     
-    // Subscribe to XAU/USD
+    // Subscribe to all 8 supported markets
     const subscribeMsg = {
       action: 'subscribe',
       params: {
-        symbols: 'XAU/USD'
+        symbols: 'EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,USD/CAD,NZD/USD,XAU/USD'
       }
     };
     
@@ -63,7 +63,7 @@ function connectTwelveData() {
         console.error('Twelve Data server error message:', parsed);
       }
       
-      if (parsed.event === 'price' && parsed.symbol === 'XAU/USD') {
+      if (parsed.event === 'price') {
         const tick = {
           symbol: parsed.symbol,
           price: parsed.price,
@@ -91,7 +91,7 @@ function connectTwelveData() {
     console.log('code:', code);
     console.log('reason:', reason ? reason.toString() : '');
     console.log('intentionalClose:', code === 1000 || code === 1001 || code === 1005);
-    console.log('subscriptions:', 'XAU/USD');
+    console.log('subscriptions:', 'EUR/USD,GBP/USD,USD/JPY,USD/CHF,AUD/USD,USD/CAD,NZD/USD,XAU/USD');
     console.log('activeConnections:', 1);
     console.log('Reconnecting in 5s...');
     setTimeout(connectTwelveData, 5000);

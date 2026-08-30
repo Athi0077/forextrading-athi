@@ -47,7 +47,7 @@ export default function AnalysisPage() {
   const fetchChartData = async () => {
     try {
       setIsChartLoading(true);
-      const intervalMap = { '1M': '1min', '5M': '5min', '15M': '15min', '30M': '30min', '1H': '1h', '4H': '4h', '1D': '1day', '1W': '1week' };
+      const intervalMap = { '1M': '1min', '5M': '5min', '15M': '15min', '1H': '1h', '4H': '4h', '1D': '1day' };
       const apiInterval = intervalMap[timeframe] || '15min';
       
       const config = MARKET_CONFIG[selectedMarket];
@@ -205,7 +205,7 @@ export default function AnalysisPage() {
           </div>
           
           <div className="flex items-center space-x-2 mt-4 sm:mt-0 overflow-x-auto scrollbar-hide">
-            {['1M', '5M', '15M', '30M', '1H', '4H', '1D', '1W'].map((tf) => (
+            {['1M', '5M', '15M', '1H', '4H', '1D'].map((tf) => (
               <button
                 key={tf}
                 onClick={() => setTimeframe(tf)}
