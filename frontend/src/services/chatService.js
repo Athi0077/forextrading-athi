@@ -1,6 +1,6 @@
 import { apiCall } from './api';
 
-export const sendChatMessage = async (message, conversationId, symbol = 'XAU/USD') => {
+export const sendChatMessage = async (message, conversationId, symbol) => {
   try {
     const result = await apiCall('/ai/chat', {
       method: 'POST',
@@ -35,7 +35,7 @@ export const getConversations = async () => {
   }
 };
 
-export const createConversation = async (title = 'New Chat', symbol = 'XAU/USD') => {
+export const createConversation = async (title = 'New Chat', symbol) => {
   try {
     const result = await apiCall('/conversations', {
       method: 'POST',

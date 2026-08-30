@@ -1,6 +1,6 @@
 import { apiCall } from './api';
 
-export const getMarketAnalysis = async (symbol = 'XAU/USD') => {
+export const getMarketAnalysis = async (symbol) => {
   try {
     const result = await apiCall(`/analysis?symbol=${encodeURIComponent(symbol)}`, {
       method: 'GET'

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { createChart } from 'lightweight-charts';
 import socketClient from '../../services/socketClient';
+import { normalizeSymbol } from '../../utils/marketUtils';
 
 export default function CandlestickChart({ candles, isLoading, error, syncTimestamp, plotData, symbol }) {
   const chartContainerRef = useRef();
@@ -14,11 +15,18 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
   }, [candles]);
 
   useEffect(() => {
+    const selectedSymbol = normalizeSymbol(symbol);
+    
     const unsubscribe = socketClient.onPriceUpdate((tick) => {
       if (!seriesRef.current || !candlesRef.current || candlesRef.current.length === 0) return;
-      if (symbol && tick.symbol && tick.symbol !== symbol) return;
+      if (!selectedSymbol || !tick?.symbol) return;
       
-      const price = parseFloat(tick.price);
+      const tickSymbol = normalizeSymbol(tick.symbol);
+      if (tickSymbol !== selectedSymbol) return;
+      
+      const price = Number(tick.price);
+      if (!Number.isFinite(price)) return;
+      
       const lastCandle = candlesRef.current[candlesRef.current.length - 1];
       
       // Update the current candle with the live tick
@@ -34,6 +42,20 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
     });
 
     return () => unsubscribe();
+  }, [symbol]);
+
+  useEffect(() => {
+    if (!seriesRef.current) return;
+    
+    // Immediately clear data on symbol change
+    candlesRef.current = [];
+    seriesRef.current.setData([]);
+    seriesRef.current.setMarkers([]);
+    
+    if (priceLinesRef.current.length > 0) {
+      priceLinesRef.current.forEach(line => seriesRef.current.removePriceLine(line));
+      priceLinesRef.current = [];
+    }
   }, [symbol]);
 
   useEffect(() => {
@@ -115,13 +137,20 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
   }, []); // Only run once on mount
 
   useEffect(() => {
-    if (seriesRef.current && candles && candles.length > 0) {
-      seriesRef.current.setData(candles);
+    if (!seriesRef.current) return;
+
+    const nextCandles = candles ? [...candles] : [];
+    candlesRef.current = nextCandles;
+
+    if (nextCandles.length > 0) {
+      seriesRef.current.setData(nextCandles);
       if (!syncTimestamp && !plotData) {
         chartRef.current?.timeScale().fitContent();
       }
+    } else {
+      seriesRef.current.setData([]);
     }
-  }, [candles]);
+  }, [candles, symbol, syncTimestamp, plotData]);
 
   useEffect(() => {
     // Clear existing lines

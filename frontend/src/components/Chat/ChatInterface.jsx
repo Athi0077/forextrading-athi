@@ -30,7 +30,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [viewMode, setViewMode] = useState('chat');
   const [conversations, setConversations] = useState([]);
-  const [selectedMarket, setSelectedMarket] = useState('XAU/USD');
+  const [selectedMarket, setSelectedMarket] = useState('EUR/USD');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
     const newId = timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16)).toLowerCase();
     setConversationId(newId);
-    setSelectedMarket('XAU/USD');
+    setSelectedMarket('EUR/USD');
     setViewMode('chat');
     if (onSyncChart) onSyncChart(null);
     if (onPlotChart) onPlotChart(null);

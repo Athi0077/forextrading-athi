@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Activity, Maximize2, Settings, BarChart2, Zap, ShieldAlert, Target, Crosshair } from 'lucide-react';
 import CandlestickChart from '../components/Chart/CandlestickChart';
-import { getMarketAnalysis, getMarketCandles } from '../services/marketAnalysis';
+import { getMarketAnalysis, getMarketCandles, getMarketQuotes } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
+import { MARKET_CONFIG, formatMarketPrice, calculatePipValue, normalizeSymbol } from '../utils/marketUtils';
 
 export default function AnalysisPage() {
   const [timeframe, setTimeframe] = useState('15M');
@@ -10,11 +11,11 @@ export default function AnalysisPage() {
   const [chartCandles, setChartCandles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChartLoading, setIsChartLoading] = useState(true);
-  const [selectedMarket, setSelectedMarket] = useState('XAU/USD');
-  const [liveData, setLiveData] = useState({ price: 2024.50, change: 0.15, changePercent: 0.01, high: 2030, low: 2010, open: 2020 });
+  const [selectedMarket, setSelectedMarket] = useState('EUR/USD');
+  const [liveData, setLiveData] = useState(null);
   const [tradeAction, setTradeAction] = useState('BUY');
 
-  const MARKETS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'];
+  const MARKETS = Object.keys(MARKET_CONFIG);
 
   // Input states for Trade Action
   const [entryPrice, setEntryPrice] = useState('');
@@ -49,18 +50,39 @@ export default function AnalysisPage() {
       const intervalMap = { '1M': '1min', '5M': '5min', '15M': '15min', '30M': '30min', '1H': '1h', '4H': '4h', '1D': '1day', '1W': '1week' };
       const apiInterval = intervalMap[timeframe] || '15min';
       
-      const candles = await getMarketCandles(selectedMarket, apiInterval, 150);
+      const config = MARKET_CONFIG[selectedMarket];
+      if (!config) return;
+
+      const [candles, quotes] = await Promise.all([
+        getMarketCandles(config.apiSymbol, apiInterval, 150),
+        getMarketQuotes(selectedMarket)
+      ]);
+
       setChartCandles(candles);
       
-      if (candles && candles.length > 0) {
+      const quote = quotes ? quotes[selectedMarket] : null;
+      
+      if (quote) {
+        setLiveData({
+          price: parseFloat(quote.close || quote.open || 0),
+          change: parseFloat(quote.change || 0),
+          changePercent: parseFloat(quote.percent_change || 0),
+          open: parseFloat(quote.open || 0),
+          high: parseFloat(quote.high || 0),
+          low: parseFloat(quote.low || 0),
+          previousClose: parseFloat(quote.previous_close || 0)
+        });
+      } else if (candles && candles.length > 0) {
         const latest = candles[candles.length - 1];
-        setLiveData(prev => ({
-          ...prev,
+        setLiveData({
           price: latest.close,
+          change: 0,
+          changePercent: 0,
           open: latest.open,
-          high: Math.max(...candles.slice(-20).map(c => c.high)),
-          low: Math.min(...candles.slice(-20).map(c => c.low))
-        }));
+          high: latest.high,
+          low: latest.low,
+          previousClose: candles.length > 1 ? candles[candles.length - 2].close : latest.open
+        });
       }
     } catch (err) {
       console.error(err);
@@ -71,27 +93,49 @@ export default function AnalysisPage() {
   };
 
   useEffect(() => {
+    // Clear data on market change before fetching
+    setChartCandles([]);
+    setAnalysisData(null);
+    setLiveData(null);
+    setEntryPrice('');
+    setStopLoss('');
+    setTakeProfit('');
+
     fetchData();
+    fetchChartData();
+
+    const selectedApiSymbol = MARKET_CONFIG[selectedMarket]?.apiSymbol;
+
     const cleanupSocket = socketClient.onPriceUpdate((data) => {
-      if (data.symbol === selectedMarket) {
-        setLiveData(prev => ({
+      const tickSymbol = normalizeSymbol(data?.symbol);
+      const expectedSymbol = normalizeSymbol(selectedApiSymbol);
+      
+      if (!data?.symbol || tickSymbol !== expectedSymbol) {
+        return;
+      }
+
+      setLiveData(prev => {
+        if (!prev) return null;
+        return {
           ...prev,
-          price: data.price,
+          price: parseFloat(data.price),
           change: data.change || prev.change,
           changePercent: data.changePercent || prev.changePercent,
-        }));
-      }
+        };
+      });
     });
 
     return () => cleanupSocket();
   }, [selectedMarket]);
 
   useEffect(() => {
-    fetchChartData();
-  }, [timeframe, selectedMarket]);
+    if (chartCandles.length > 0) {
+      fetchChartData();
+    }
+  }, [timeframe]);
 
   const tfData = analysisData?.timeframes ? analysisData.timeframes[timeframe.toLowerCase()] || analysisData.timeframes['15m'] : null;
-  const isPositive = liveData.change >= 0;
+  const isPositive = liveData?.change >= 0;
 
   // Trade Calculator Logic
   const entryNum = parseFloat(entryPrice);
@@ -104,12 +148,12 @@ export default function AnalysisPage() {
   let rrRatio = '0.0';
 
   if (!isNaN(entryNum) && !isNaN(slNum) && !isNaN(tpNum) && !isNaN(lotNum)) {
-    const pipValue = 10; // Approx for XAUUSD standard lot
+    const pipValue = calculatePipValue(selectedMarket);
     const riskDiff = Math.abs(entryNum - slNum);
     const rewardDiff = Math.abs(tpNum - entryNum);
     
-    riskAmount = riskDiff * pipValue * lotNum * 10; 
-    rewardAmount = rewardDiff * pipValue * lotNum * 10;
+    riskAmount = riskDiff * pipValue * lotNum; 
+    rewardAmount = rewardDiff * pipValue * lotNum;
     
     if (riskDiff > 0) rrRatio = (rewardDiff / riskDiff).toFixed(2);
   }
@@ -140,11 +184,13 @@ export default function AnalysisPage() {
             
             <div className="flex items-center space-x-3">
               <span className={`text-2xl font-bold tracking-tight ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
-                {liveData.price.toFixed(2)}
+                {liveData ? formatMarketPrice(selectedMarket, liveData.price) : '---'}
               </span>
-              <div className={`text-sm font-medium ${isPositive ? 'text-green-400/80' : 'text-red-400/80'} bg-brand-elevated px-2 py-1 rounded-md border ${isPositive ? 'border-green-500/20' : 'border-red-500/20'}`}>
-                {isPositive ? '+' : ''}{liveData.change.toFixed(2)} ({isPositive ? '+' : ''}{liveData.changePercent.toFixed(2)}%)
-              </div>
+              {liveData && (
+                <div className={`text-sm font-medium ${isPositive ? 'text-green-400/80' : 'text-red-400/80'} bg-brand-elevated px-2 py-1 rounded-md border ${isPositive ? 'border-green-500/20' : 'border-red-500/20'}`}>
+                  {isPositive ? '+' : ''}{liveData.change.toFixed(4)} ({isPositive ? '+' : ''}{liveData.changePercent.toFixed(2)}%)
+                </div>
+              )}
             </div>
           </div>
           
@@ -175,6 +221,7 @@ export default function AnalysisPage() {
             candles={chartCandles} 
             isLoading={isChartLoading && chartCandles.length === 0} 
             plotData={analysisData}
+            symbol={selectedMarket}
           />
         </div>
 
@@ -252,19 +299,19 @@ export default function AnalysisPage() {
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-brand-surface border border-brand-border p-3 rounded-xl">
               <p className="text-xs text-brand-muted opacity-80 mb-1">Day High</p>
-              <p className="text-sm font-semibold text-brand-text">{liveData.high.toFixed(2)}</p>
+              <p className="text-sm font-semibold text-brand-text">{liveData ? formatMarketPrice(selectedMarket, liveData.high) : '---'}</p>
             </div>
             <div className="bg-brand-surface border border-brand-border p-3 rounded-xl">
               <p className="text-xs text-brand-muted opacity-80 mb-1">Day Low</p>
-              <p className="text-sm font-semibold text-brand-text">{liveData.low.toFixed(2)}</p>
+              <p className="text-sm font-semibold text-brand-text">{liveData ? formatMarketPrice(selectedMarket, liveData.low) : '---'}</p>
             </div>
             <div className="bg-brand-surface border border-brand-border p-3 rounded-xl">
               <p className="text-xs text-brand-muted opacity-80 mb-1">Open</p>
-              <p className="text-sm font-semibold text-brand-text">{liveData.open.toFixed(2)}</p>
+              <p className="text-sm font-semibold text-brand-text">{liveData ? formatMarketPrice(selectedMarket, liveData.open) : '---'}</p>
             </div>
             <div className="bg-brand-surface border border-brand-border p-3 rounded-xl">
               <p className="text-xs text-brand-muted opacity-80 mb-1">Prev Close</p>
-              <p className="text-sm font-semibold text-brand-text">{(liveData.price - liveData.change).toFixed(2)}</p>
+              <p className="text-sm font-semibold text-brand-text">{liveData?.previousClose ? formatMarketPrice(selectedMarket, liveData.previousClose) : (liveData ? formatMarketPrice(selectedMarket, liveData.price - liveData.change) : '---')}</p>
             </div>
           </div>
 
