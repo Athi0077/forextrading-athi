@@ -176,21 +176,21 @@ export default function TradeChartPage() {
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/50 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border pb-4">
         <div className="flex items-center space-x-4">
           <button 
             onClick={() => navigate('/market')}
-            className="p-2 bg-[#18181b] border border-zinc-800/50 rounded-xl hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-white"
+            className="p-2 bg-brand-elevated border border-brand-border rounded-xl hover:bg-brand-elevated transition-colors text-brand-muted hover:text-brand-text"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           
           <div>
-            <h1 className="text-2xl font-bold text-white flex items-center">
+            <h1 className="text-2xl font-bold text-brand-text flex items-center">
               {formattedPair}
-              <span className="ml-3 text-xs px-2 py-1 bg-zinc-800/80 rounded-lg text-zinc-400">Forex</span>
+              <span className="ml-3 text-xs px-2 py-1 bg-brand-elevated/80 rounded-lg text-brand-muted">Forex</span>
             </h1>
-            <p className="text-sm text-zinc-500 flex items-center mt-1">
+            <p className="text-sm text-brand-muted opacity-80 flex items-center mt-1">
               <Clock className="w-3 h-3 mr-1" /> Live Market Data
             </p>
           </div>
@@ -198,7 +198,7 @@ export default function TradeChartPage() {
 
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="text-2xl font-bold text-white tracking-tight">
+            <p className="text-2xl font-bold text-brand-text tracking-tight">
               {liveData.price > 0 ? liveData.price.toFixed(formattedPair.includes('JPY') ? 3 : 5) : '...'}
             </p>
             <div className={`flex items-center justify-end text-sm font-medium ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -216,7 +216,7 @@ export default function TradeChartPage() {
         <div className="lg:col-span-3 space-y-4">
           
           {/* Chart Controls */}
-          <div className="flex items-center justify-between bg-[#121214] border border-zinc-800/50 rounded-2xl p-3">
+          <div className="flex items-center justify-between bg-brand-surface border border-brand-border rounded-2xl p-3">
             <div className="flex space-x-1">
               {TIMEFRAMES.map(tf => (
                 <button
@@ -225,7 +225,7 @@ export default function TradeChartPage() {
                   className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                     timeframe === tf.value 
                       ? 'bg-brand-purple/20 text-brand-purple' 
-                      : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'
+                      : 'text-brand-muted opacity-80 hover:text-brand-text hover:bg-brand-elevated'
                   }`}
                 >
                   {tf.label}
@@ -235,9 +235,9 @@ export default function TradeChartPage() {
           </div>
 
           {/* Chart Container */}
-          <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4 relative min-h-[500px]">
+          <div className="bg-brand-surface border border-brand-border rounded-2xl p-4 relative min-h-[500px]">
             {isLoading && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#121214]/50 backdrop-blur-sm rounded-2xl">
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-brand-surface/50 backdrop-blur-sm rounded-2xl">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-purple"></div>
               </div>
             )}
@@ -247,8 +247,8 @@ export default function TradeChartPage() {
 
         {/* Sidebar / Order Entry */}
         <div className="space-y-6">
-          <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-6">
-            <h2 className="text-sm font-semibold text-zinc-400 mb-6">EXECUTE TRADE</h2>
+          <div className="bg-brand-surface border border-brand-border rounded-2xl p-6">
+            <h2 className="text-sm font-semibold text-brand-muted mb-6">EXECUTE TRADE</h2>
             
             <div className="space-y-4">
               <button 
@@ -268,18 +268,18 @@ export default function TradeChartPage() {
               </button>
             </div>
             
-            <div className="mt-8 pt-6 border-t border-zinc-800/50 space-y-3 text-sm">
-              <div className="flex justify-between items-center text-zinc-400">
+            <div className="mt-8 pt-6 border-t border-brand-border space-y-3 text-sm">
+              <div className="flex justify-between items-center text-brand-muted">
                 <span>Spread</span>
-                <span className="text-white font-medium">{liveData.spread ? liveData.spread : 'Variable'}</span>
+                <span className="text-brand-text font-medium">{liveData.spread ? liveData.spread : 'Variable'}</span>
               </div>
-              <div className="flex justify-between items-center text-zinc-400">
+              <div className="flex justify-between items-center text-brand-muted">
                 <span>Margin Req</span>
-                <span className="text-white font-medium">~1.00%</span>
+                <span className="text-brand-text font-medium">~1.00%</span>
               </div>
-              <div className="flex justify-between items-center text-zinc-400">
+              <div className="flex justify-between items-center text-brand-muted">
                 <span>Trading Hours</span>
-                <span className="text-white font-medium">24/5</span>
+                <span className="text-brand-text font-medium">24/5</span>
               </div>
             </div>
           </div>

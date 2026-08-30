@@ -14,7 +14,7 @@ export default function AiAssistantPage() {
 
   return (
     <div className="flex h-[calc(100vh-5rem)]">
-      <div className="w-full h-full max-w-4xl mx-auto border-x border-zinc-800/50 flex flex-col">
+      <div className="w-full h-full max-w-4xl mx-auto border-x border-brand-border flex flex-col">
         <ChatInterface 
           conversationId={conversationId} 
           setConversationId={setConversationId} 

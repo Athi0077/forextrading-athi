@@ -94,31 +94,31 @@ export default function TradeJournalPage() {
   const winRate = totalTrades > 0 ? (winningTrades / totalTrades) * 100 : 0;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 text-zinc-300">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6 text-brand-text">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Trade Journal</h1>
-          <p className="text-sm text-zinc-500 mt-1">Record and review your market executions.</p>
+          <h1 className="text-2xl font-bold text-brand-text">Trade Journal</h1>
+          <p className="text-sm text-brand-muted opacity-80 mt-1">Record and review your market executions.</p>
         </div>
         <div className="flex items-center space-x-3">
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-muted opacity-80" />
             <input 
               type="text" 
               placeholder="Search pair..." 
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 bg-[#18181b] border border-zinc-800/50 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-purple/50 text-white"
+              className="pl-9 pr-4 py-2 bg-brand-elevated border border-brand-border rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-purple/50 text-brand-text"
             />
           </div>
-          <button className="p-2 bg-[#18181b] border border-zinc-800/50 rounded-xl hover:bg-zinc-800 transition-colors">
-            <Filter className="w-5 h-5 text-zinc-400" />
+          <button className="p-2 bg-brand-elevated border border-brand-border rounded-xl hover:bg-brand-elevated transition-colors">
+            <Filter className="w-5 h-5 text-brand-muted" />
           </button>
           <button 
             onClick={() => handleOpenTradeModal()}
-            className="flex items-center px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-pink text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
+            className="flex items-center px-4 py-2 bg-gradient-to-r from-brand-purple to-brand-pink text-brand-text text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4 mr-2" /> Add Trade
           </button>
@@ -127,24 +127,24 @@ export default function TradeJournalPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Total Trades</p>
-          <p className="text-xl font-bold text-white">{totalTrades}</p>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-4">
+          <p className="text-xs text-brand-muted opacity-80 mb-1">Total Trades</p>
+          <p className="text-xl font-bold text-brand-text">{totalTrades}</p>
         </div>
-        <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Win Rate</p>
-          <p className="text-xl font-bold text-white">{winRate.toFixed(1)}%</p>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-4">
+          <p className="text-xs text-brand-muted opacity-80 mb-1">Win Rate</p>
+          <p className="text-xl font-bold text-brand-text">{winRate.toFixed(1)}%</p>
         </div>
-        <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Winning Trades</p>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-4">
+          <p className="text-xs text-brand-muted opacity-80 mb-1">Winning Trades</p>
           <p className="text-xl font-bold text-green-400">{winningTrades}</p>
         </div>
-        <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Losing Trades</p>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-4">
+          <p className="text-xs text-brand-muted opacity-80 mb-1">Losing Trades</p>
           <p className="text-xl font-bold text-red-400">{losingTrades}</p>
         </div>
-        <div className="bg-[#121214] border border-zinc-800/50 rounded-2xl p-4">
-          <p className="text-xs text-zinc-500 mb-1">Total P/L</p>
+        <div className="bg-brand-surface border border-brand-border rounded-2xl p-4">
+          <p className="text-xs text-brand-muted opacity-80 mb-1">Total P/L</p>
           <p className={`text-xl font-bold ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
             ${totalPnL.toFixed(2)}
           </p>
@@ -152,10 +152,10 @@ export default function TradeJournalPage() {
       </div>
 
       {/* Trade Table */}
-      <div className="bg-[#0c0c0e] border border-zinc-800/50 rounded-2xl overflow-hidden">
+      <div className="bg-[#0c0c0e] border border-brand-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-[#121214] text-xs uppercase text-zinc-500">
+            <thead className="bg-brand-surface text-xs uppercase text-brand-muted opacity-80">
               <tr>
                 <th className="px-6 py-4 font-medium">Pair</th>
                 <th className="px-6 py-4 font-medium">Type</th>
@@ -167,29 +167,29 @@ export default function TradeJournalPage() {
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800/50">
+            <tbody className="divide-y divide-brand-border">
               {isLoading ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-8 text-center text-zinc-500">Loading trades...</td>
+                  <td colSpan="8" className="px-6 py-8 text-center text-brand-muted opacity-80">Loading trades...</td>
                 </tr>
               ) : filteredTrades.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="px-6 py-12 text-center text-zinc-500">
+                  <td colSpan="8" className="px-6 py-12 text-center text-brand-muted opacity-80">
                     <p>No trades found.</p>
                     <button onClick={() => handleOpenTradeModal()} className="mt-4 text-brand-purple hover:underline">Add your first trade</button>
                   </td>
                 </tr>
               ) : (
                 filteredTrades.map(trade => (
-                  <tr key={trade._id} className="hover:bg-zinc-800/20 transition-colors">
-                    <td className="px-6 py-4 font-bold text-white">{trade.pair}</td>
+                  <tr key={trade._id} className="hover:bg-brand-elevated/50 transition-colors">
+                    <td className="px-6 py-4 font-bold text-brand-text">{trade.pair}</td>
                     <td className="px-6 py-4">
                       <span className={`px-2 py-1 rounded text-xs font-bold ${trade.type === 'BUY' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                         {trade.type}
                       </span>
                     </td>
                     <td className="px-6 py-4 font-mono">{trade.entryPrice}</td>
-                    <td className="px-6 py-4 font-mono text-zinc-400">{trade.exitPrice || '--'}</td>
+                    <td className="px-6 py-4 font-mono text-brand-muted">{trade.exitPrice || '--'}</td>
                     <td className="px-6 py-4">{trade.lotSize}</td>
                     <td className="px-6 py-4">
                       {trade.status === 'CLOSED' ? (
@@ -198,24 +198,24 @@ export default function TradeJournalPage() {
                           ${trade.pnl.toFixed(2)}
                         </span>
                       ) : (
-                        <span className="text-zinc-500">--</span>
+                        <span className="text-brand-muted opacity-80">--</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded text-xs ${trade.status === 'OPEN' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-zinc-800 text-zinc-400'}`}>
+                      <span className={`px-2 py-1 rounded text-xs ${trade.status === 'OPEN' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-brand-elevated text-brand-muted'}`}>
                         {trade.status}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       {trade.status === 'OPEN' && (
-                        <button onClick={() => handleOpenCloseModal(trade)} className="p-1.5 text-zinc-400 hover:text-green-400 bg-zinc-800/50 rounded-lg transition-colors" title="Close Trade">
+                        <button onClick={() => handleOpenCloseModal(trade)} className="p-1.5 text-brand-muted hover:text-green-400 bg-brand-elevated rounded-lg transition-colors" title="Close Trade">
                           <Check className="w-4 h-4" />
                         </button>
                       )}
-                      <button onClick={() => handleOpenTradeModal(trade)} className="p-1.5 text-zinc-400 hover:text-brand-purple bg-zinc-800/50 rounded-lg transition-colors" title="Edit">
+                      <button onClick={() => handleOpenTradeModal(trade)} className="p-1.5 text-brand-muted hover:text-brand-purple bg-brand-elevated rounded-lg transition-colors" title="Edit">
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      <button onClick={() => handleDelete(trade._id)} className="p-1.5 text-zinc-400 hover:text-red-400 bg-zinc-800/50 rounded-lg transition-colors" title="Delete">
+                      <button onClick={() => handleDelete(trade._id)} className="p-1.5 text-brand-muted hover:text-red-400 bg-brand-elevated rounded-lg transition-colors" title="Delete">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     </td>

@@ -73,10 +73,10 @@ export default function MarketPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center">
+          <h1 className="text-2xl font-bold text-brand-text flex items-center">
             Forex Market
           </h1>
-          <div className="flex items-center text-sm text-zinc-400 mt-1 space-x-4">
+          <div className="flex items-center text-sm text-brand-muted mt-1 space-x-4">
             <span className="flex items-center text-green-400"><Activity className="w-4 h-4 mr-1" /> Market Open</span>
             <span className="flex items-center"><Clock className="w-4 h-4 mr-1 text-brand-purple" /> Active Session</span>
           </div>
@@ -85,17 +85,17 @@ export default function MarketPage() {
         <div className="flex items-center space-x-3">
           <div className="relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-zinc-500 group-focus-within:text-brand-purple transition-colors" />
+              <Search className="h-4 w-4 text-brand-muted opacity-80 group-focus-within:text-brand-purple transition-colors" />
             </div>
             <input 
               type="text" 
               placeholder="Search pairs..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full sm:w-64 bg-[#18181b] border border-zinc-800/50 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-purple/50 focus:border-brand-purple/50 transition-all text-white placeholder-zinc-500"
+              className="pl-10 pr-4 py-2 w-full sm:w-64 bg-brand-elevated border border-brand-border rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-brand-purple/50 focus:border-brand-purple/50 transition-all text-brand-text placeholder-brand-muted"
             />
           </div>
-          <button className="p-2.5 bg-[#18181b] border border-zinc-800/50 rounded-xl hover:bg-zinc-800 transition-colors text-zinc-400 hover:text-white group">
+          <button className="p-2.5 bg-brand-elevated border border-brand-border rounded-xl hover:bg-brand-elevated transition-colors text-brand-muted hover:text-brand-text group">
             <RefreshCw className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
           </button>
         </div>
@@ -110,7 +110,7 @@ export default function MarketPage() {
             ? 'bg-green-500/20 border-green-500/50' 
             : flashing[pair.symbol] === 'down' 
             ? 'bg-red-500/20 border-red-500/50' 
-            : 'bg-[#121214] border-zinc-800/50 hover:border-zinc-700';
+            : 'bg-brand-surface border-brand-border hover:border-zinc-700';
 
           return (
             <div 
@@ -124,13 +124,13 @@ export default function MarketPage() {
                     {isPositive ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                   </div>
                   <div>
-                    <h3 className="font-bold text-white text-lg leading-tight">{pair.symbol}</h3>
-                    <p className="text-xs text-zinc-500">Forex</p>
+                    <h3 className="font-bold text-brand-text text-lg leading-tight">{pair.symbol}</h3>
+                    <p className="text-xs text-brand-muted opacity-80">Forex</p>
                   </div>
                 </div>
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(pair.symbol); }}
-                  className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-brand-gold bg-brand-gold/10' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'}`}
+                  className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-brand-gold bg-brand-gold/10' : 'text-brand-muted opacity-80 hover:text-brand-text hover:bg-brand-elevated'}`}
                 >
                   <Star className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </button>
@@ -138,7 +138,7 @@ export default function MarketPage() {
 
               <div className="flex justify-between items-end">
                 <div>
-                  <p className="text-2xl font-bold text-white tracking-tight">
+                  <p className="text-2xl font-bold text-brand-text tracking-tight">
                     {pair.price.toFixed(pair.symbol === 'XAU/USD' || pair.symbol === 'USD/JPY' ? 2 : 5)}
                   </p>
                   <p className={`text-sm font-medium flex items-center mt-0.5 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
@@ -148,8 +148,8 @@ export default function MarketPage() {
                 
                 {pair.spread && (
                   <div className="text-right">
-                    <p className="text-xs text-zinc-500 mb-0.5">Spread</p>
-                    <p className="text-sm font-medium text-zinc-300">{pair.spread}</p>
+                    <p className="text-xs text-brand-muted opacity-80 mb-0.5">Spread</p>
+                    <p className="text-sm font-medium text-brand-text">{pair.spread}</p>
                   </div>
                 )}
               </div>
