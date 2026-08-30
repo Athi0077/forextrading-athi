@@ -271,7 +271,7 @@ export default function AdminAiPage() {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 sm:p-6 bg-brand-surface border-t border-brand-border z-10 shrink-0">
+        <div className="p-4 pb-8 sm:p-6 sm:pb-10 bg-brand-surface border-t border-brand-border z-10 shrink-0">
           <form onSubmit={handleSendMessage} className="relative max-w-4xl mx-auto">
             <input
               type="text"
