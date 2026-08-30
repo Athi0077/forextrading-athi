@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { createChart } from 'lightweight-charts';
 import socketClient from '../../services/socketClient';
 
-export default function CandlestickChart({ candles, isLoading, error, syncTimestamp, plotData }) {
+export default function CandlestickChart({ candles, isLoading, error, syncTimestamp, plotData, symbol }) {
   const chartContainerRef = useRef();
   const chartRef = useRef(null);
   const seriesRef = useRef(null);
@@ -16,6 +16,7 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
   useEffect(() => {
     const unsubscribe = socketClient.onPriceUpdate((tick) => {
       if (!seriesRef.current || !candlesRef.current || candlesRef.current.length === 0) return;
+      if (symbol && tick.symbol && tick.symbol !== symbol) return;
       
       const price = parseFloat(tick.price);
       const lastCandle = candlesRef.current[candlesRef.current.length - 1];
@@ -33,7 +34,7 @@ export default function CandlestickChart({ candles, isLoading, error, syncTimest
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [symbol]);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
