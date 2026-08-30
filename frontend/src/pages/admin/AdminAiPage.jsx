@@ -128,7 +128,7 @@ export default function AdminAiPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-brand-base relative overflow-hidden">
+    <div className="flex-1 flex bg-brand-base relative overflow-hidden">
       
       {/* Mobile Sidebar Toggle */}
       <button 

@@ -170,7 +170,7 @@ export default function AdminLayout() {
           <div className="w-10"></div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 scrollbar-hide">
+        <main className={`flex-1 flex flex-col overflow-y-auto scrollbar-hide ${location.pathname.startsWith('/admin/ai') ? '' : 'p-4 sm:p-8'}`}>
           <Outlet />
         </main>
       </div>
