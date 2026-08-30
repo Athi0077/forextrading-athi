@@ -84,10 +84,10 @@ export default function TradeModal({ isOpen, onClose, onSubmit, initialData }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#0c0c0e] border border-zinc-800/80 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between p-5 border-b border-zinc-800/50">
-          <h3 className="text-lg font-bold text-white">{initialData ? 'Edit Trade' : 'Add New Trade'}</h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white transition-colors">
+      <div className="bg-brand-surface border border-brand-border/80 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
+        <div className="flex items-center justify-between p-5 border-b border-brand-border">
+          <h3 className="text-lg font-bold text-brand-text">{initialData ? 'Edit Trade' : 'Add New Trade'}</h3>
+          <button onClick={onClose} className="text-brand-muted hover:text-brand-text transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -95,12 +95,12 @@ export default function TradeModal({ isOpen, onClose, onSubmit, initialData }) {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Currency Pair</label>
-              <input required type="text" value={formData.pair} onChange={e => setFormData({...formData, pair: e.target.value.toUpperCase()})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" placeholder="e.g. EUR/USD" />
+              <label className="block text-xs text-brand-muted mb-1">Currency Pair</label>
+              <input required type="text" value={formData.pair} onChange={e => setFormData({...formData, pair: e.target.value.toUpperCase()})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" placeholder="e.g. EUR/USD" />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Type</label>
-              <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none">
+              <label className="block text-xs text-brand-muted mb-1">Type</label>
+              <select value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none">
                 <option value="BUY">BUY</option>
                 <option value="SELL">SELL</option>
               </select>
@@ -109,52 +109,52 @@ export default function TradeModal({ isOpen, onClose, onSubmit, initialData }) {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Entry Price</label>
-              <input required type="number" step="any" value={formData.entryPrice} onChange={e => setFormData({...formData, entryPrice: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
+              <label className="block text-xs text-brand-muted mb-1">Entry Price</label>
+              <input required type="number" step="any" value={formData.entryPrice} onChange={e => setFormData({...formData, entryPrice: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Stop Loss</label>
-              <input type="number" step="any" value={formData.stopLoss} onChange={e => setFormData({...formData, stopLoss: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
+              <label className="block text-xs text-brand-muted mb-1">Stop Loss</label>
+              <input type="number" step="any" value={formData.stopLoss} onChange={e => setFormData({...formData, stopLoss: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Take Profit</label>
-              <input type="number" step="any" value={formData.takeProfit} onChange={e => setFormData({...formData, takeProfit: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
+              <label className="block text-xs text-brand-muted mb-1">Take Profit</label>
+              <input type="number" step="any" value={formData.takeProfit} onChange={e => setFormData({...formData, takeProfit: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Lot Size</label>
-              <input required type="number" step="any" value={formData.lotSize} onChange={e => setFormData({...formData, lotSize: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" />
+              <label className="block text-xs text-brand-muted mb-1">Lot Size</label>
+              <input required type="number" step="any" value={formData.lotSize} onChange={e => setFormData({...formData, lotSize: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs text-zinc-400 mb-1">Exit Price (Optional)</label>
-              <input type="number" step="any" value={formData.exitPrice} onChange={e => setFormData({...formData, exitPrice: e.target.value})} className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none" placeholder="Closes trade if set" />
+              <label className="block text-xs text-brand-muted mb-1">Exit Price (Optional)</label>
+              <input type="number" step="any" value={formData.exitPrice} onChange={e => setFormData({...formData, exitPrice: e.target.value})} className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none" placeholder="Closes trade if set" />
             </div>
           </div>
           
-          <div className="bg-[#121214] border border-zinc-800/50 rounded-lg p-3 flex justify-between items-center text-sm">
+          <div className="bg-brand-surface border border-brand-border rounded-lg p-3 flex justify-between items-center text-sm">
             <div>
-              <span className="text-zinc-500 text-xs block">Risk</span>
+              <span className="text-brand-muted opacity-80 text-xs block">Risk</span>
               <span className="text-red-400 font-semibold">${risk.toFixed(2)}</span>
             </div>
             <div>
-              <span className="text-zinc-500 text-xs block">Reward</span>
+              <span className="text-brand-muted opacity-80 text-xs block">Reward</span>
               <span className="text-green-400 font-semibold">${reward.toFixed(2)}</span>
             </div>
             <div className="text-right">
-              <span className="text-zinc-500 text-xs block">Risk/Reward</span>
-              <span className="text-white font-bold">1:{rr}</span>
+              <span className="text-brand-muted opacity-80 text-xs block">Risk/Reward</span>
+              <span className="text-brand-text font-bold">1:{rr}</span>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs text-zinc-400 mb-1">Notes</label>
-            <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} rows="2" className="w-full bg-[#18181b] border border-zinc-800 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-purple focus:outline-none"></textarea>
+            <label className="block text-xs text-brand-muted mb-1">Notes</label>
+            <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} rows="2" className="w-full bg-brand-elevated border border-brand-border rounded-lg px-3 py-2 text-sm text-brand-text focus:border-brand-purple focus:outline-none"></textarea>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t border-zinc-800/50 mt-4">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white transition-colors">Cancel</button>
+          <div className="flex justify-end space-x-3 pt-4 border-t border-brand-border mt-4">
+            <button type="button" onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-medium text-brand-muted hover:text-brand-text transition-colors">Cancel</button>
             <button type="submit" className="px-6 py-2 rounded-lg text-sm font-bold text-white bg-gradient-to-r from-brand-purple to-brand-pink hover:opacity-90 transition-opacity">
               {initialData ? 'Update Trade' : 'Save Trade'}
             </button>

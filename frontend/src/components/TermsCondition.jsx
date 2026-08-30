@@ -3,18 +3,18 @@ export default function TermsCondition({ onClose }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-hidden">
       <div className="bg-brand-elevated rounded-2xl border border-slate-800 w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden relative">
         <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 flex-shrink-0">
-          <h2 className="text-xl font-bold text-white">Terms & Conditions</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors text-2xl leading-none">&times;</button>
+          <h2 className="text-xl font-bold text-brand-text">Terms & Conditions</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-brand-text transition-colors text-2xl leading-none">&times;</button>
         </div>
         <div className="p-6 overflow-y-auto text-slate-300 text-sm space-y-4">
           <p><strong>Last Updated: August 29, 2026</strong></p>
           <p>Welcome to our Liquiva Platform. By creating an account, accessing, or using our platform, you agree to comply with and be legally bound by these Terms & Conditions. Please read them carefully before using the platform.</p>
           
-          <h3 className="text-white font-semibold text-lg mt-6">1. Acceptance of Terms</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">1. Acceptance of Terms</h3>
           <p>By registering for an account or using any feature of this platform, you confirm that you have read, understood, and agreed to these Terms & Conditions, our Privacy Policy, and other applicable policies.</p>
           <p>If you do not agree with any part of these terms, you should not use the platform.</p>
           
-          <h3 className="text-white font-semibold text-lg mt-6">2. User Account</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">2. User Account</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>Users must provide accurate, complete, and up-to-date information during registration.</li>
             <li>Each user is responsible for maintaining the confidentiality of their login credentials.</li>
@@ -24,7 +24,7 @@ export default function TermsCondition({ onClose }) {
             <li>One person should not create multiple accounts unless explicitly permitted by the platform.</li>
           </ul>
 
-          <h3 className="text-white font-semibold text-lg mt-6">3. Account Inactivity and Deactivation</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">3. Account Inactivity and Deactivation</h3>
           <p>To maintain platform security and data integrity, accounts may be considered inactive if the user has not logged in or used the platform for <strong>15 consecutive days</strong>.</p>
           <p>After 15 consecutive days of inactivity:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -36,7 +36,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>We may send an email, notification, or other communication before or after account deactivation where reasonably possible.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">4. Accuracy of User Trading Data</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">4. Accuracy of User Trading Data</h3>
           <p>Users are responsible for ensuring that all trading information entered into the platform is accurate.</p>
           <p>This includes, but is not limited to:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -54,13 +54,13 @@ export default function TermsCondition({ onClose }) {
           <p>If a user enters incorrect or incomplete information, the platform's calculations, statistics, reports, charts, or performance analysis may also be incorrect.</p>
           <p>The platform is not responsible for losses, incorrect calculations, or decisions resulting from inaccurate user-entered information.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">5. Buy and Sell Transactions</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">5. Buy and Sell Transactions</h3>
           <p>Users are solely responsible for reviewing and confirming their Buy and Sell information before submitting or recording a transaction.</p>
           <p>Once a transaction or trade record has been submitted, users should verify the details displayed by the platform.</p>
           <p>The platform does not guarantee that every displayed market price, trade price, or transaction value will exactly match the price available from a broker, exchange, liquidity provider, or third-party market-data provider.</p>
           <p>Any difference may occur because of market movements, spreads, latency, data-provider limitations, network issues, or other technical factors.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">6. Trading Risk and Loss Disclaimer</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">6. Trading Risk and Loss Disclaimer</h3>
           <p><strong>Forex and financial-market trading involve substantial risk and may result in partial or complete loss of capital.</strong></p>
           <p>Users acknowledge that:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -73,7 +73,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p><strong>The platform, its owners, developers, employees, or service providers shall not be held responsible for losses resulting from trades or investment decisions made by users based on information displayed on the platform, except where liability cannot legally be excluded.</strong></p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">7. AI Analysis and Suggestions</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">7. AI Analysis and Suggestions</h3>
           <p>The platform may provide AI-powered features such as:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Market analysis</li>
@@ -96,7 +96,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>Users are responsible for independently evaluating any information before taking action.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">8. Market Data Disclaimer</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">8. Market Data Disclaimer</h3>
           <p>Market prices, charts, indicators, news, currency rates, and other financial information may be obtained from third-party data providers.</p>
           <p>Although reasonable efforts may be made to provide reliable and timely information:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -108,7 +108,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>The platform does not guarantee the completeness, accuracy, reliability, or real-time availability of third-party market data.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">9. No Guarantee of Service Availability</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">9. No Guarantee of Service Availability</h3>
           <p>We aim to keep the platform available and operational; however, continuous or uninterrupted availability cannot be guaranteed.</p>
           <p>The platform may temporarily become unavailable because of:</p>
           <ul className="list-disc pl-5 space-y-1">
@@ -124,7 +124,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>We shall not be responsible for losses caused solely by temporary service interruptions, except where applicable law provides otherwise.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">10. User Responsibility</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">10. User Responsibility</h3>
           <p>Users agree to:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Use the platform only for lawful purposes.</li>
@@ -137,7 +137,7 @@ export default function TermsCondition({ onClose }) {
             <li>Not use automated methods, bots, scripts, or other systems to abuse platform functionality unless expressly authorized.</li>
           </ul>
 
-          <h3 className="text-white font-semibold text-lg mt-6">11. Prohibited Activities</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">11. Prohibited Activities</h3>
           <p>Users must not:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Create accounts using false information.</li>
@@ -152,7 +152,7 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>Violation of these rules may result in immediate suspension or termination of the account.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">12. Account Suspension and Termination</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">12. Account Suspension and Termination</h3>
           <p>We reserve the right to suspend, restrict, deactivate, or terminate an account if:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>The user violates these Terms & Conditions.</li>
@@ -166,31 +166,31 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>Where appropriate and legally permitted, we may provide notice before taking such action.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">13. Data and Privacy</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">13. Data and Privacy</h3>
           <p>We may collect and process information necessary to provide and improve the platform, including account information, trading records, platform activity, and technical information.</p>
           <p>User data will be handled in accordance with our Privacy Policy and applicable data-protection laws.</p>
           <p>Certain information may be retained after account deactivation or termination when required for legal, security, fraud-prevention, dispute-resolution, or legitimate operational purposes.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">14. Changes to the Platform</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">14. Changes to the Platform</h3>
           <p>We may add, modify, suspend, or remove platform features from time to time.</p>
           <p>Features, calculations, AI functionality, market-data sources, and other services may be updated without prior notice when reasonably necessary.</p>
           <p>Continued use of the platform after changes are made may constitute acceptance of the updated Terms & Conditions.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">15. Changes to These Terms</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">15. Changes to These Terms</h3>
           <p>We may update these Terms & Conditions from time to time.</p>
           <p>When material changes are made, we may provide reasonable notice through the platform or other available communication methods.</p>
           <p>Users are responsible for reviewing the latest version of these Terms & Conditions.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">16. Third-Party Services</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">16. Third-Party Services</h3>
           <p>The platform may integrate with third-party services, APIs, payment providers, market-data providers, authentication providers, or other external services.</p>
           <p>We are not responsible for the availability, accuracy, security, or performance of third-party services that are outside our reasonable control.</p>
           <p>Third-party services may have their own terms and privacy policies.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">17. Intellectual Property</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">17. Intellectual Property</h3>
           <p>All platform software, design, branding, logos, graphics, content, features, and other proprietary materials belong to the platform or its respective licensors unless otherwise stated.</p>
           <p>Users may not copy, reproduce, distribute, modify, sell, or commercially exploit platform content without appropriate authorization.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">18. Limitation of Liability</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">18. Limitation of Liability</h3>
           <p>To the maximum extent permitted by applicable law, the platform and its owners, developers, employees, affiliates, and service providers shall not be liable for indirect, incidental, consequential, or financial losses arising from:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>Trading decisions</li>
@@ -205,25 +205,25 @@ export default function TermsCondition({ onClose }) {
           </ul>
           <p>Nothing in these Terms is intended to exclude liability that cannot legally be excluded or limited.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">19. No Financial Advice</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">19. No Financial Advice</h3>
           <p>Nothing on this platform should be interpreted as a recommendation to buy, sell, hold, or trade any financial instrument.</p>
           <p>Users should obtain independent professional financial advice where appropriate before making investment or trading decisions.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">20. User Acknowledgement of Risk</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">20. User Acknowledgement of Risk</h3>
           <p>By using the platform, you acknowledge that you understand the risks associated with financial-market and forex trading and that you are responsible for your own trading decisions.</p>
           <p>You further acknowledge that:</p>
           <p><strong>No profit is guaranteed, and losses are possible.</strong></p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">21. Governing Law</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">21. Governing Law</h3>
           <p>These Terms & Conditions shall be governed by and interpreted in accordance with the applicable laws and regulations of the jurisdiction in which the platform operates, subject to mandatory legal requirements.</p>
           <p>Any dispute shall be handled by the appropriate courts or authorities having jurisdiction.</p>
 
-          <h3 className="text-white font-semibold text-lg mt-6">22. Contact and Support</h3>
+          <h3 className="text-brand-text font-semibold text-lg mt-6">22. Contact and Support</h3>
           <p>If you have questions regarding these Terms & Conditions, account deactivation, data, transactions, or platform functionality, please contact our support team through the official support channels provided on the platform.</p>
 
           <hr className="my-6 border-slate-700" />
 
-          <h3 className="text-white font-semibold text-lg">Final User Confirmation</h3>
+          <h3 className="text-brand-text font-semibold text-lg">Final User Confirmation</h3>
           <p>By clicking <strong>"I Agree"</strong>, creating an account, or continuing to use the platform, you confirm that:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>You have read and understood these Terms & Conditions.</li>

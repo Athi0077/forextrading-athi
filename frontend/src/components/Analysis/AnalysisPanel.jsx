@@ -32,7 +32,7 @@ export default function AnalysisPanel({ analysis }) {
       {/* Current Price */}
       <div className="bg-slate-900 rounded-lg p-4 border border-slate-800 text-center">
         <p className="text-sm text-slate-400 mb-1">CURRENT PRICE</p>
-        <p className="text-3xl font-bold text-white">{analysis.currentPrice?.toFixed(2)}</p>
+        <p className="text-3xl font-bold text-brand-text">{analysis.currentPrice?.toFixed(2)}</p>
       </div>
 
       {/* Timeframes Breakdown */}
@@ -71,7 +71,7 @@ export default function AnalysisPanel({ analysis }) {
         {!isWait && (
           <div className="mt-4 bg-slate-950/50 rounded-lg p-2 inline-block">
             <span className="text-xs text-slate-400">Signal Confidence: </span>
-            <span className="text-sm font-bold text-white">{signalConfidence}</span>
+            <span className="text-sm font-bold text-brand-text">{signalConfidence}</span>
           </div>
         )}
       </div>
@@ -80,7 +80,7 @@ export default function AnalysisPanel({ analysis }) {
       <div className="bg-slate-900 rounded-xl p-4 border border-slate-800 space-y-4">
         <div className="flex justify-between items-center pb-3 border-b border-slate-800">
           <span className="text-sm text-slate-400">Entry</span>
-          <span className="font-semibold text-white">{isWait ? 'Waiting' : entry?.toFixed(2)}</span>
+          <span className="font-semibold text-brand-text">{isWait ? 'Waiting' : entry?.toFixed(2)}</span>
         </div>
         <div className="flex justify-between items-center pb-3 border-b border-slate-800">
           <span className="text-sm text-slate-400">Stop Loss</span>

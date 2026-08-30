@@ -38,7 +38,7 @@ export default function AnnouncementModal({ announcements, onClose }) {
         <div className="p-6 border-t border-brand-border bg-brand-elevated/20 flex justify-end">
           <button 
             onClick={onClose}
-            className="px-6 py-2 bg-brand-accent text-white font-medium rounded-lg hover:bg-brand-accent/90 transition-colors shadow-lg shadow-brand-accent/20"
+            className="px-6 py-2 bg-brand-accent text-brand-text font-medium rounded-lg hover:bg-brand-accent/90 transition-colors shadow-lg shadow-brand-accent/20"
           >
             Close & Continue
           </button>

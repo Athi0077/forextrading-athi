@@ -363,7 +363,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
             placeholder="Ask about XAU/USD..."
-            className="flex-1 bg-slate-900 border border-slate-700 text-white rounded-full px-5 py-3 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold text-sm disabled:opacity-50"
+            className="flex-1 bg-slate-900 border border-slate-700 text-brand-text rounded-full px-5 py-3 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold text-sm disabled:opacity-50"
           />
           <button
             type="submit"

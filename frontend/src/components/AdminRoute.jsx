@@ -9,7 +9,7 @@ export default function AdminRoute({ children }) {
       <div className="flex h-screen w-full items-center justify-center bg-brand-base">
         <div className="flex flex-col items-center space-y-4">
           <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-t-2 border-brand-accent"></div>
-          <p className="text-sm text-zinc-500">Loading Admin Interface...</p>
+          <p className="text-sm text-brand-muted opacity-80">Loading Admin Interface...</p>
         </div>
       </div>
     );
