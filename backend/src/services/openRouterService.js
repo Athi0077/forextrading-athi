@@ -23,8 +23,11 @@ Rules:
    - Trading involves high risk. AI analysis is educational, not financial advice.
    - Prohibited: bots, exploiting APIs, manipulating data, sharing accounts.
    - If an account is blocked or issues arise, users can contact support.
-9. If the user is just asking a general question (like about Terms & Conditions), set signal to "WAIT", entry/stopLoss/takeProfit to null, and put your answer in the "reason" field.
-10. Return your response purely as JSON in the following structure (do NOT wrap in markdown \`\`\`json blocks, just return raw JSON):
+9. If the user is only asking a general, educational, conversational, or platform-support question, set showTradePlan to false.
+10. If the user explicitly asks for trading analysis, a trading setup, entry timing, BUY/SELL decision, entry price, stop loss, take profit, or asks to analyze the market/timeframes, set showTradePlan to true.
+11. If showTradePlan is false: signal must be WAIT, entry must be null, stopLoss must be null, takeProfit must be null, riskReward must be 0, and answer the user's question naturally in the reason field.
+12. If showTradePlan is true: perform the requested market analysis using the supplied 15M/5M/1M market data, return BUY, SELL, or WAIT based on the analysis, provide entry, stopLoss, takeProfit and riskReward when a valid BUY/SELL setup exists (if WAIT, entry/stopLoss/takeProfit may be null). Never invent prices.
+13. Return your response purely as JSON in the following structure (do NOT wrap in markdown \`\`\`json blocks, just return raw JSON):
 {
   "signal": "BUY | SELL | WAIT",
   "confidence": 0,
@@ -34,7 +37,8 @@ Rules:
   "riskReward": 0,
   "reason": "Your natural language response explaining the setup OR answering the user's question",
   "timeframe": "The primary timeframe this trade targets (e.g. 15M)",
-  "marketCondition": "Brief summary of the market condition"
+  "marketCondition": "Brief summary of the market condition",
+  "showTradePlan": false
 }`;
 
 async function callOpenRouter(messages, marketContext) {

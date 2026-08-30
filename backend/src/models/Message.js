@@ -39,6 +39,10 @@ const messageSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  showTradePlan: {
+    type: Boolean,
+    default: false
+  },
   isError: {
     type: Boolean,
     default: false

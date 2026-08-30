@@ -315,7 +315,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
                 </div>
               </div>
               
-              {msg.role === 'assistant' && !msg.isInitial && !msg.isError && msg.signal && renderTradingCard(msg)}
+              {msg.role === 'assistant' && !msg.isInitial && !msg.isError && msg.showTradePlan === true && renderTradingCard(msg)}
             </div>
           </div>
         ))}

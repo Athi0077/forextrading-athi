@@ -121,6 +121,7 @@ const processChatMessage = async (req, res, next) => {
         riskRewardRatio: aiResponse.riskReward,
         currentPrice: marketContext.currentPrice
       },
+      showTradePlan: !!aiResponse.showTradePlan,
       warnings: []
     });
 
@@ -156,6 +157,7 @@ const processChatMessage = async (req, res, next) => {
           riskReward: aiResponse.riskReward,
           currentPrice: marketContext.currentPrice
         },
+        showTradePlan: !!aiResponse.showTradePlan,
         createdAt: aiMsg.createdAt
       }
     });
