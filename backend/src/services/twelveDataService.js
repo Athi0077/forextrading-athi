@@ -16,6 +16,22 @@ const INTERVAL_MS = {
   '1day': 24 * 60 * 60 * 1000
 };
 
+// In-memory cache for quotes to prevent 429 errors
+const quotesCache = {
+  timestamp: 0,
+  data: null,
+  symbols: ''
+};
+
+const formatApiSymbol = (sym) => {
+  if (!sym) return sym;
+  // Convert EURUSD to EUR/USD for Twelve Data if it's a 6-char string without slash
+  if (sym.length === 6 && !sym.includes('/')) {
+    return `${sym.substring(0, 3)}/${sym.substring(3)}`;
+  }
+  return sym;
+};
+
 async function getCandles(symbol, interval, outputsize = 150) {
   if (!API_KEY) {
     throw new Error('Missing TWELVE_DATA_API_KEY');
@@ -57,7 +73,7 @@ async function getCandles(symbol, interval, outputsize = 150) {
 
     const response = await axios.get(BASE_URL, {
       params: {
-        symbol: symbol,
+        symbol: formatApiSymbol(symbol),
         interval: interval,
         outputsize: outputsize,
         apikey: API_KEY,
@@ -142,10 +158,17 @@ async function getQuotes(symbols) {
     throw new Error('Missing TWELVE_DATA_API_KEY');
   }
 
+  // Check cache (valid for 60 seconds)
+  const now = Date.now();
+  if (quotesCache.data && quotesCache.symbols === symbols && (now - quotesCache.timestamp) < 60000) {
+    return quotesCache.data;
+  }
+
   try {
+    const formattedSymbols = symbols.split(',').map(formatApiSymbol).join(',');
     const response = await axios.get('https://api.twelvedata.com/quote', {
       params: {
-        symbol: symbols,
+        symbol: formattedSymbols,
         apikey: API_KEY,
         format: 'JSON'
       }
@@ -156,9 +179,17 @@ async function getQuotes(symbols) {
       throw new Error(data.message || 'Twelve Data API Error');
     }
 
+    // Update cache
+    quotesCache.data = data;
+    quotesCache.timestamp = now;
+    quotesCache.symbols = symbols;
+
     return data;
   } catch (error) {
     console.error(`Error fetching quotes for ${symbols}:`, error.message);
+    if (quotesCache.data) {
+      return quotesCache.data; // Return stale cache if API fails (e.g. 429)
+    }
     throw new Error('Market quotes are temporarily unavailable. Please try again.');
   }
 }
