@@ -32,12 +32,13 @@ const formatApiSymbol = (sym) => {
   return sym;
 };
 
-async function getCandles(symbol, interval, outputsize = 150) {
+async function getCandles(rawSymbol, interval, outputsize = 150) {
   if (!API_KEY) {
     throw new Error('Missing TWELVE_DATA_API_KEY');
   }
 
   try {
+    const symbol = formatApiSymbol(rawSymbol);
     const latestCached = await MarketData.findOne({ symbol, timeframe: interval }).sort({ timestamp: -1 });
 
     let needsFetch = true;

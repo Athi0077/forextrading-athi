@@ -53,10 +53,20 @@ export default function AnalysisPage() {
       const config = MARKET_CONFIG[selectedMarket];
       if (!config) return;
 
-      const [candles, quotes] = await Promise.all([
-        getMarketCandles(config.apiSymbol, apiInterval, 150),
-        getMarketQuotes(selectedMarket)
-      ]);
+      let candles = [];
+      let quotes = null;
+
+      try {
+        candles = await getMarketCandles(config.apiSymbol, apiInterval, 150);
+      } catch (err) {
+        console.error("Candles fetch error:", err);
+      }
+
+      try {
+        quotes = await getMarketQuotes(selectedMarket);
+      } catch (err) {
+        console.error("Quotes fetch error:", err);
+      }
 
       setChartCandles(candles);
       
@@ -115,9 +125,9 @@ export default function AnalysisPage() {
       }
 
       setLiveData(prev => {
-        if (!prev) return null;
+        const base = prev || { price: 0, change: 0, changePercent: 0, open: 0, high: 0, low: 0, previousClose: 0 };
         return {
-          ...prev,
+          ...base,
           price: parseFloat(data.price),
           change: data.change || prev.change,
           changePercent: data.changePercent || prev.changePercent,
