@@ -107,7 +107,7 @@ const getPortfolioAnalytics = async (req, res, next) => {
     
     // Aggregation for basic stats
     const stats = await Trade.aggregate([
-      { $match: { userId: req.user._id, status: 'CLOSED' } },
+      { $match: { userId: req.user.id, status: 'CLOSED' } },
       {
         $group: {
           _id: null,
@@ -133,12 +133,12 @@ const getPortfolioAnalytics = async (req, res, next) => {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     const todayStats = await Trade.aggregate([
-      { $match: { userId: req.user._id, status: 'CLOSED', exitDate: { $gte: startOfDay } } },
+      { $match: { userId: req.user.id, status: 'CLOSED', exitDate: { $gte: startOfDay } } },
       { $group: { _id: null, todayPnL: { $sum: '$pnl' } } }
     ]);
     statsData.todayPnL = todayStats[0] ? todayStats[0].todayPnL : 0;
     
-    statsData.openPositionsCount = await Trade.countDocuments({ userId: req.user._id, status: 'OPEN' });
+    statsData.openPositionsCount = await Trade.countDocuments({ userId: req.user.id, status: 'OPEN' });
 
     statsData.winRate = statsData.totalTrades > 0 ? (statsData.winningTrades / statsData.totalTrades) * 100 : 0;
     statsData.averageWin = statsData.winningTrades > 0 ? statsData.grossProfit / statsData.winningTrades : 0;
@@ -147,7 +147,7 @@ const getPortfolioAnalytics = async (req, res, next) => {
 
     // Aggregation by Pair
     const byPair = await Trade.aggregate([
-      { $match: { userId: req.user._id, status: 'CLOSED' } },
+      { $match: { userId: req.user.id, status: 'CLOSED' } },
       {
         $group: {
           _id: '$pair',
@@ -161,7 +161,7 @@ const getPortfolioAnalytics = async (req, res, next) => {
 
     // Aggregation by Type (BUY/SELL)
     const byType = await Trade.aggregate([
-      { $match: { userId: req.user._id, status: 'CLOSED' } },
+      { $match: { userId: req.user.id, status: 'CLOSED' } },
       {
         $group: {
           _id: '$type',
@@ -173,7 +173,7 @@ const getPortfolioAnalytics = async (req, res, next) => {
     ]);
     
     // Equity Curve points
-    const closedTrades = await Trade.find({ userId: req.user._id, status: 'CLOSED' }).sort({ exitDate: 1 });
+    const closedTrades = await Trade.find({ userId: req.user.id, status: 'CLOSED' }).sort({ exitDate: 1 });
     let cumulative = 0;
     const equityCurve = closedTrades.map(t => {
       cumulative += t.pnl;
@@ -201,7 +201,7 @@ const getPortfolioAnalytics = async (req, res, next) => {
 // AI Performance Insight
 const getPerformanceInsight = async (req, res, next) => {
   try {
-    const recentTrades = await Trade.find({ userId: req.user._id, status: 'CLOSED' })
+    const recentTrades = await Trade.find({ userId: req.user.id, status: 'CLOSED' })
       .sort({ exitDate: -1 })
       .limit(20);
       
