@@ -60,49 +60,54 @@ export default function TradeChartPage() {
   // Fetch historical data and render chart
   useEffect(() => {
     let isMounted = true;
+    
+    // Initialize chart immediately if container exists
+    if (!chartRef.current && chartContainerRef.current) {
+      const chart = createChart(chartContainerRef.current, {
+        layout: {
+          background: { type: 'solid', color: 'transparent' },
+          textColor: '#a1a1aa',
+        },
+        grid: {
+          vertLines: { color: 'rgba(39, 39, 42, 0.5)' },
+          horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
+        },
+        crosshair: {
+          mode: 1,
+        },
+        width: chartContainerRef.current.clientWidth,
+        height: 500,
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: '#4ade80',
+        downColor: '#f87171',
+        borderVisible: false,
+        wickUpColor: '#4ade80',
+        wickDownColor: '#f87171',
+      });
+      
+      chartRef.current = chart;
+      candleSeriesRef.current = candleSeries;
+
+      const handleResize = () => {
+        if (chartContainerRef.current && chartRef.current) {
+          chartRef.current.applyOptions({ width: chartContainerRef.current.clientWidth });
+        }
+      };
+      window.addEventListener('resize', handleResize);
+      
+      // Store resize handler for cleanup
+      chartContainerRef.current._handleResize = handleResize;
+    }
+
     const fetchCandles = async () => {
       setIsLoading(true);
       try {
         const res = await apiCall(`/market/candles?symbol=${formattedPair}&interval=${timeframe}`);
         
-        if (isMounted && res.data && chartContainerRef.current) {
-          if (!chartRef.current) {
-            const chart = createChart(chartContainerRef.current, {
-              layout: {
-                background: { type: 'solid', color: 'transparent' },
-                textColor: '#a1a1aa',
-              },
-              grid: {
-                vertLines: { color: 'rgba(39, 39, 42, 0.5)' },
-                horzLines: { color: 'rgba(39, 39, 42, 0.5)' },
-              },
-              crosshair: {
-                mode: 1,
-              },
-              width: chartContainerRef.current.clientWidth,
-              height: 500,
-            });
-
-            const candleSeries = chart.addCandlestickSeries({
-              upColor: '#4ade80',
-              downColor: '#f87171',
-              borderVisible: false,
-              wickUpColor: '#4ade80',
-              wickDownColor: '#f87171',
-            });
-            
-            chartRef.current = chart;
-            candleSeriesRef.current = candleSeries;
-
-            const handleResize = () => {
-              if (chartContainerRef.current) {
-                chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-              }
-            };
-            window.addEventListener('resize', handleResize);
-          }
-
-          const formattedData = res.data.map(d => ({
+        if (isMounted && res.candles && candleSeriesRef.current) {
+          const formattedData = res.candles.map(d => ({
             time: d.time,
             open: d.open,
             high: d.high,
@@ -110,10 +115,8 @@ export default function TradeChartPage() {
             close: d.close,
           })).sort((a, b) => a.time - b.time);
 
-          if (candleSeriesRef.current) {
-            candleSeriesRef.current.setData(formattedData);
-            chartRef.current.timeScale().fitContent();
-          }
+          candleSeriesRef.current.setData(formattedData);
+          chartRef.current.timeScale().fitContent();
           
           // Set initial live data based on last candle if empty
           if (formattedData.length > 0) {
@@ -132,13 +135,24 @@ export default function TradeChartPage() {
 
     return () => {
       isMounted = false;
+      // We do NOT destroy the chart here if we want it to persist across timeframe changes
+      // We will only destroy it on component unmount
+    };
+  }, [formattedPair, timeframe]);
+
+  // Cleanup chart on unmount
+  useEffect(() => {
+    return () => {
+      if (chartContainerRef.current?._handleResize) {
+        window.removeEventListener('resize', chartContainerRef.current._handleResize);
+      }
       if (chartRef.current) {
         chartRef.current.remove();
         chartRef.current = null;
         candleSeriesRef.current = null;
       }
     };
-  }, [formattedPair, timeframe]);
+  }, []);
 
   const handleTradeSubmit = async (formData) => {
     try {

@@ -10,7 +10,10 @@ const BASE_URL = 'https://api.twelvedata.com/time_series';
 const INTERVAL_MS = {
   '1min': 60 * 1000,
   '5min': 5 * 60 * 1000,
-  '15min': 15 * 60 * 1000
+  '15min': 15 * 60 * 1000,
+  '1h': 60 * 60 * 1000,
+  '4h': 4 * 60 * 60 * 1000,
+  '1day': 24 * 60 * 60 * 1000
 };
 
 async function getCandles(symbol, interval, outputsize = 150) {
