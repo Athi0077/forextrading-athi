@@ -96,7 +96,11 @@ async function callOpenRouter(messages, marketContext) {
 
   } catch (error) {
     console.error('OpenRouter API Error:', error.response?.data || error.message);
-    throw new Error('AI analysis is temporarily unavailable. Please try again.');
+    // If it's our own thrown error from the try block, pass it through
+    if (error.message === 'Invalid JSON returned by AI model.' || error.message === 'Empty response from OpenRouter.') {
+      throw error;
+    }
+    throw new Error('AI analysis is temporarily unavailable: ' + (error.response?.data?.error?.message || error.message));
   }
 }
 
