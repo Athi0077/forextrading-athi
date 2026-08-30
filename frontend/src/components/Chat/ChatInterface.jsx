@@ -4,8 +4,19 @@ import { cn } from '../../utils/cn';
 import { sendChatMessage, getChatHistory, getConversations, deleteConversation } from '../../services/chatService';
 import ReactMarkdown from 'react-markdown';
 
-const STARTER_QUESTIONS = [
-  "What's the current XAU/USD trend?",
+const MARKETS = [
+  'EUR/USD',
+  'GBP/USD',
+  'USD/JPY',
+  'USD/CHF',
+  'AUD/USD',
+  'USD/CAD',
+  'NZD/USD',
+  'XAU/USD'
+];
+
+const getStarterQuestions = (symbol) => [
+  `What's the current ${symbol} trend?`,
   "Should I buy or sell?",
   "When should I enter?",
   "What are the support and resistance levels?",
@@ -19,6 +30,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [viewMode, setViewMode] = useState('chat');
   const [conversations, setConversations] = useState([]);
+  const [selectedMarket, setSelectedMarket] = useState('XAU/USD');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -32,7 +44,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
           setMessages([{
             id: 1,
             role: 'assistant',
-            content: 'Hello! I am your Liquiva Assistant. How can I help you analyze XAU/USD today?',
+            content: `Hello! I am your Liquiva Assistant. How can I help you analyze ${selectedMarket} today?`,
             isInitial: true
           }]);
         }
@@ -54,6 +66,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     const timestamp = Math.floor(new Date().getTime() / 1000).toString(16);
     const newId = timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16)).toLowerCase();
     setConversationId(newId);
+    setSelectedMarket('XAU/USD');
     setViewMode('chat');
     if (onSyncChart) onSyncChart(null);
     if (onPlotChart) onPlotChart(null);
@@ -93,7 +106,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     if (onPlotChart) onPlotChart(null);
 
     try {
-      const response = await sendChatMessage(text, conversationId);
+      const response = await sendChatMessage(text, conversationId, selectedMarket);
       
       const aiMsg = {
         id: Date.now() + 1,
@@ -118,9 +131,13 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     if (!msg.signal) return null;
     
     const isWait = msg.signal === 'WAIT';
+    const cardSymbol = msg.symbol || selectedMarket;
 
     return (
       <div className="mt-4 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden text-sm w-full shadow-lg group relative">
+        <div className="bg-slate-800 px-4 py-2 text-xs font-bold text-slate-300 border-b border-slate-700">
+          {cardSymbol}
+        </div>
         <div className={cn(
           "px-4 py-2 flex items-center justify-between font-bold text-xs uppercase tracking-wider",
           msg.signal === 'BUY' ? "bg-green-500/20 text-green-400" :
@@ -245,6 +262,9 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
                 key={conv._id}
                 onClick={() => {
                   setConversationId(conv._id);
+                  if (conv.symbol) {
+                    setSelectedMarket(conv.symbol);
+                  }
                   setViewMode('chat');
                 }}
                 className={cn(
@@ -336,7 +356,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
 
       {/* Quick Actions / Starter Questions */}
       <div className="px-4 py-3 flex overflow-x-auto space-x-2 border-t border-slate-800 bg-brand-surface scrollbar-hide">
-        {STARTER_QUESTIONS.map((q, i) => (
+        {getStarterQuestions(selectedMarket).map((q, i) => (
           <button
             key={i}
             onClick={() => handleSend(q)}
@@ -362,9 +382,19 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isTyping}
-            placeholder="Ask about XAU/USD..."
+            placeholder={`Ask about ${selectedMarket}...`}
             className="flex-1 bg-slate-900 border border-slate-700 text-brand-text rounded-full px-5 py-3 focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold text-sm disabled:opacity-50"
           />
+          <select
+            value={selectedMarket}
+            onChange={(e) => setSelectedMarket(e.target.value)}
+            disabled={isTyping}
+            className="bg-slate-900 border border-slate-700 text-brand-text rounded-full px-3 py-2 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold disabled:opacity-50 appearance-none min-w-[110px] text-center"
+          >
+            {MARKETS.map(market => (
+              <option key={market} value={market}>{market}</option>
+            ))}
+          </select>
           <button
             type="submit"
             disabled={!input.trim() || isTyping}

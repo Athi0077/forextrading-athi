@@ -1,10 +1,10 @@
 import { apiCall } from './api';
 
-export const sendChatMessage = async (message, conversationId) => {
+export const sendChatMessage = async (message, conversationId, symbol = 'XAU/USD') => {
   try {
     const result = await apiCall('/ai/chat', {
       method: 'POST',
-      body: JSON.stringify({ message, conversationId, symbol: 'XAU/USD' })
+      body: JSON.stringify({ message, conversationId, symbol })
     });
     return result.data;
   } catch (error) {

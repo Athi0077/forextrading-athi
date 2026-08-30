@@ -22,6 +22,10 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  symbol: {
+    type: String,
+    default: 'XAU/USD'
+  },
   signal: {
     type: String,
     enum: ['BUY', 'SELL', 'WAIT', null],

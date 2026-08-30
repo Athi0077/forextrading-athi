@@ -9,6 +9,21 @@ const processChatMessage = async (req, res, next) => {
   try {
     const { message, symbol = 'XAU/USD', conversationId } = req.body;
     
+    const SUPPORTED_SYMBOLS = [
+      'EUR/USD',
+      'GBP/USD',
+      'USD/JPY',
+      'USD/CHF',
+      'AUD/USD',
+      'USD/CAD',
+      'NZD/USD',
+      'XAU/USD'
+    ];
+
+    if (!SUPPORTED_SYMBOLS.includes(symbol)) {
+      return res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'Unsupported symbol provided.' }});
+    }
+
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'Invalid message provided.' }});
     }
@@ -26,8 +41,8 @@ const processChatMessage = async (req, res, next) => {
       conversation = await Conversation.create({
         _id: conversationId,
         userId: req.user.id,
-        title: 'XAU/USD Chat',
-        symbol: symbol || 'XAU/USD'
+        title: `${symbol} Chat`,
+        symbol: symbol
       });
     }
 
@@ -61,12 +76,12 @@ const processChatMessage = async (req, res, next) => {
         };
       }
     } catch (error) {
-      console.warn("Could not fetch live market data for AI context:", error.message);
+      console.warn(`Could not fetch live market data for ${symbol} AI context:`, error.message);
       
       return res.json({
         success: false,
         signal: "UNAVAILABLE",
-        error: "Live market data is currently unavailable. " + error.message
+        error: `Live market data for ${symbol} is currently unavailable. ` + error.message
       });
     }
 
@@ -74,7 +89,7 @@ const processChatMessage = async (req, res, next) => {
       return res.json({
         success: false,
         signal: "UNAVAILABLE",
-        error: "Live market data is currently unavailable."
+        error: `Live market data for ${symbol} is currently unavailable.`
       });
     }
 
@@ -109,6 +124,7 @@ const processChatMessage = async (req, res, next) => {
       role: 'assistant',
       content: aiResponse.reason || "I've analyzed the market conditions.",
       signal: aiResponse.signal || "WAIT",
+      symbol: aiResponse.symbol || symbol,
       analysis: {
         timeframe: aiResponse.timeframe,
         marketCondition: aiResponse.marketCondition
@@ -130,9 +146,9 @@ const processChatMessage = async (req, res, next) => {
     await conversation.save();
 
     // Auto-generate title if it's the default (fire and forget)
-    if (conversation.title === 'XAU/USD Chat' || conversation.title === 'New Chat') {
+    if (conversation.title === 'XAU/USD Chat' || conversation.title === 'New Chat' || conversation.title.endsWith(' Chat')) {
       generateChatTitle(message).then(newTitle => {
-        if (newTitle && newTitle !== "XAU/USD Chat") {
+        if (newTitle && newTitle !== "XAU/USD Chat" && !newTitle.endsWith(' Chat')) {
           conversation.title = newTitle;
           conversation.save().catch(err => console.error("Failed to save auto-generated title:", err));
         }
@@ -147,6 +163,7 @@ const processChatMessage = async (req, res, next) => {
         content: aiMsg.content,
         answer: aiMsg.content, // for frontend compatibility
         signal: aiResponse.signal,
+        symbol: aiResponse.symbol || symbol,
         confidence: aiResponse.confidence,
         timeframe: aiResponse.timeframe,
         marketCondition: aiResponse.marketCondition,
