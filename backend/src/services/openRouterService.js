@@ -75,7 +75,7 @@ async function callOpenRouter(messages, marketContext) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
           'HTTP-Referer': 'http://localhost:5174',
-          'X-Title': 'Forex AI Assistant'
+          'X-Title': 'Liquiva Assistant'
         },
         timeout: 25000 
       }

@@ -8,7 +8,7 @@ export default function TermsCondition({ onClose }) {
         </div>
         <div className="p-6 overflow-y-auto text-slate-300 text-sm space-y-4">
           <p><strong>Last Updated: August 29, 2026</strong></p>
-          <p>Welcome to our Forex Trading Platform. By creating an account, accessing, or using our platform, you agree to comply with and be legally bound by these Terms & Conditions. Please read them carefully before using the platform.</p>
+          <p>Welcome to our Liquiva Platform. By creating an account, accessing, or using our platform, you agree to comply with and be legally bound by these Terms & Conditions. Please read them carefully before using the platform.</p>
           
           <h3 className="text-white font-semibold text-lg mt-6">1. Acceptance of Terms</h3>
           <p>By registering for an account or using any feature of this platform, you confirm that you have read, understood, and agreed to these Terms & Conditions, our Privacy Policy, and other applicable policies.</p>

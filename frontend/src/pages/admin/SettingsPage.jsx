@@ -6,7 +6,7 @@ export default function AdminSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [settings, setSettings] = useState({
-    siteName: 'ForexTrading Platform',
+    siteName: 'Liquiva Platform',
     maintenanceMode: false,
     allowRegistration: true,
     requireEmailVerification: false,

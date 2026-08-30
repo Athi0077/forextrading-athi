@@ -32,7 +32,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
           setMessages([{
             id: 1,
             role: 'assistant',
-            content: 'Hello! I am your Forex AI Assistant. How can I help you analyze XAU/USD today?',
+            content: 'Hello! I am your Liquiva Assistant. How can I help you analyze XAU/USD today?',
             isInitial: true
           }]);
         }

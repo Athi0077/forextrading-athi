@@ -63,7 +63,7 @@ export default function LoginPage() {
 
       <div className="relative z-10 max-w-md w-full space-y-8 bg-black/20 backdrop-blur-lg p-8 rounded-2xl border border-white/10 shadow-2xl">
         <div className="text-center">
-          <img src={logo} alt="ForexTrading Logo" className="mx-auto h-16 w-auto object-contain rounded-xl" />
+          <img src={logo} alt="Liquiva Logo" className="mx-auto h-16 w-auto object-contain rounded-xl" />
           <h2 className="mt-6 text-3xl font-extrabold text-white">
             Sign in to your account
           </h2>

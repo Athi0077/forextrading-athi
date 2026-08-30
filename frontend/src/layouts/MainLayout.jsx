@@ -115,7 +115,7 @@ export default function MainLayout() {
               <img src={logo} alt="Logo" className="h-8 w-auto object-contain rounded-lg" />
             </div>
             <span className="text-xl font-bold tracking-tight text-brand-text">
-              FOREX<span className="text-brand-accent">AI</span>
+              LIQU<span className="text-brand-accent">IVA</span>
             </span>
           </Link>
           <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden text-zinc-400 hover:text-white p-2">
@@ -173,7 +173,7 @@ export default function MainLayout() {
             <div className="p-1 rounded-lg bg-gradient-to-br from-brand-purple/20 to-brand-pink/20">
               <img src={logo} alt="Logo" className="h-7 w-auto object-contain rounded-md" />
             </div>
-            <span className="font-bold text-white tracking-tight">FOREX<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink">AI</span></span>
+            <span className="font-bold text-white tracking-tight">LIQU<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-purple to-brand-pink">IVA</span></span>
           </div>
           <div className="w-10"></div> {/* Placeholder for centering */}
         </header>

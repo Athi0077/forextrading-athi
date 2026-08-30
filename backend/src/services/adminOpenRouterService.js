@@ -48,7 +48,7 @@ async function callAdminOpenRouter(messages, adminContext) {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
           'HTTP-Referer': 'http://localhost:5174',
-          'X-Title': 'Forex Admin AI Assistant'
+          'X-Title': 'Liquiva Admin Assistant'
         },
         timeout: 25000 
       }

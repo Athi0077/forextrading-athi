@@ -2,7 +2,7 @@ const Setting = require('../../models/Setting');
 
 // Default initial settings
 const defaultSettings = {
-  siteName: 'ForexTrading Platform',
+  siteName: 'Liquiva Platform',
   maintenanceMode: false,
   allowRegistration: true,
   requireEmailVerification: false,
