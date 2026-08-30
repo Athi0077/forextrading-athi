@@ -110,6 +110,12 @@ exports.chatWithAdminAi = async (req, res, next) => {
       }
     };
 
+    // Start generating title if needed
+    let titlePromise = null;
+    if (conversation.title === 'New Admin Chat' && latestUserMessage) {
+      titlePromise = generateChatTitle(latestUserMessage.content);
+    }
+
     const aiResponseContent = await callAdminOpenRouter(messages, adminContext);
 
     // Save AI's response
@@ -120,18 +126,19 @@ exports.chatWithAdminAi = async (req, res, next) => {
       content: aiResponseContent
     });
 
-    conversation.updatedAt = new Date();
-    await conversation.save();
-
-    // Auto-generate title if it's the default
-    if (conversation.title === 'New Admin Chat' && latestUserMessage) {
-      generateChatTitle(latestUserMessage.content).then(newTitle => {
+    // Wait for title if it was generating
+    if (titlePromise) {
+      try {
+        const newTitle = await titlePromise;
         if (newTitle && newTitle !== "XAU/USD Chat") {
           conversation.title = newTitle;
-          conversation.save().catch(err => console.error("Failed to save admin chat title:", err));
         }
-      });
+      } catch (err) {
+        console.error("Failed to save admin chat title:", err);
+      }
     }
+
+    await conversation.save();
 
     res.json({
       success: true,
