@@ -13,8 +13,8 @@ export default function AiAssistantPage() {
   }, [conversationId]);
 
   return (
-    <div className="flex h-[calc(100vh-5rem)]">
-      <div className="w-full h-full max-w-4xl mx-auto border-x border-brand-border flex flex-col">
+    <div className="flex h-full min-h-[calc(100vh-4rem)] lg:min-h-screen w-full">
+      <div className="w-full h-full flex flex-col">
         <ChatInterface 
           conversationId={conversationId} 
           setConversationId={setConversationId} 
