@@ -1,13 +1,13 @@
 import { apiCall } from './api';
 
-export const getXauUsdAnalysis = async () => {
+export const getMarketAnalysis = async (symbol = 'XAU/USD') => {
   try {
-    const result = await apiCall('/analysis/xauusd', {
+    const result = await apiCall(`/analysis?symbol=${encodeURIComponent(symbol)}`, {
       method: 'GET'
     });
     return result.data;
   } catch (error) {
-    console.error("Error fetching analysis:", error);
+    console.error(`Error fetching analysis for ${symbol}:`, error);
     throw error;
   }
 };

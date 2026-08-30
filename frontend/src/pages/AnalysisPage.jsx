@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, Activity, Maximize2, Settings, BarChart2, Zap, ShieldAlert, Target, Crosshair } from 'lucide-react';
 import CandlestickChart from '../components/Chart/CandlestickChart';
-import { getXauUsdAnalysis, getMarketCandles } from '../services/marketAnalysis';
+import { getMarketAnalysis, getMarketCandles } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
 
 export default function AnalysisPage() {
@@ -10,8 +10,11 @@ export default function AnalysisPage() {
   const [chartCandles, setChartCandles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isChartLoading, setIsChartLoading] = useState(true);
+  const [selectedMarket, setSelectedMarket] = useState('XAU/USD');
   const [liveData, setLiveData] = useState({ price: 2024.50, change: 0.15, changePercent: 0.01, high: 2030, low: 2010, open: 2020 });
   const [tradeAction, setTradeAction] = useState('BUY');
+
+  const MARKETS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'];
 
   // Input states for Trade Action
   const [entryPrice, setEntryPrice] = useState('');
@@ -22,7 +25,7 @@ export default function AnalysisPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true);
-      const data = await getXauUsdAnalysis();
+      const data = await getMarketAnalysis(selectedMarket);
       setAnalysisData(data);
       
       // Auto-fill trade action based on AI
@@ -46,7 +49,7 @@ export default function AnalysisPage() {
       const intervalMap = { '1M': '1min', '5M': '5min', '15M': '15min', '30M': '30min', '1H': '1h', '4H': '4h', '1D': '1day', '1W': '1week' };
       const apiInterval = intervalMap[timeframe] || '15min';
       
-      const candles = await getMarketCandles('XAU/USD', apiInterval, 150);
+      const candles = await getMarketCandles(selectedMarket, apiInterval, 150);
       setChartCandles(candles);
       
       if (candles && candles.length > 0) {
@@ -70,7 +73,7 @@ export default function AnalysisPage() {
   useEffect(() => {
     fetchData();
     const cleanupSocket = socketClient.onPriceUpdate((data) => {
-      if (data.symbol === 'XAU/USD') {
+      if (data.symbol === selectedMarket) {
         setLiveData(prev => ({
           ...prev,
           price: data.price,
@@ -81,11 +84,11 @@ export default function AnalysisPage() {
     });
 
     return () => cleanupSocket();
-  }, []);
+  }, [selectedMarket]);
 
   useEffect(() => {
     fetchChartData();
-  }, [timeframe]);
+  }, [timeframe, selectedMarket]);
 
   const tfData = analysisData?.timeframes ? analysisData.timeframes[timeframe.toLowerCase()] || analysisData.timeframes['15m'] : null;
   const isPositive = liveData.change >= 0;
@@ -120,11 +123,19 @@ export default function AnalysisPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border-b border-brand-border bg-brand-surface">
           <div className="flex items-center space-x-6">
-            <div>
-              <h2 className="text-xl font-bold text-brand-text flex items-center gap-2">
-                XAU/USD
-              </h2>
-              <p className="text-xs text-brand-muted opacity-80">Gold / US Dollar</p>
+            <div className="flex items-center space-x-3">
+              <select
+                value={selectedMarket}
+                onChange={(e) => setSelectedMarket(e.target.value)}
+                className="bg-transparent text-xl font-bold text-brand-text focus:outline-none appearance-none cursor-pointer"
+              >
+                {MARKETS.map(market => (
+                  <option key={market} value={market} className="bg-brand-surface text-base">
+                    {market}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none text-brand-muted">▼</div>
             </div>
             
             <div className="flex items-center space-x-3">

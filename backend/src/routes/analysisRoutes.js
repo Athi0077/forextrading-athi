@@ -3,6 +3,6 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
 const { getAnalysis } = require('../controllers/analysisController');
 
-router.get('/xauusd', authMiddleware, getAnalysis);
+router.get('/', authMiddleware, getAnalysis);
 
 module.exports = router;

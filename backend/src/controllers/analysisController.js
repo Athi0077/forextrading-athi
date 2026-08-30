@@ -5,7 +5,12 @@ const Analysis = require('../models/Analysis');
 
 const getAnalysis = async (req, res, next) => {
   try {
-    const symbol = 'XAU/USD';
+    const symbol = req.query.symbol || 'XAU/USD';
+    const SUPPORTED_SYMBOLS = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'USD/CHF', 'AUD/USD', 'USD/CAD', 'NZD/USD', 'XAU/USD'];
+    
+    if (!SUPPORTED_SYMBOLS.includes(symbol)) {
+      return res.status(400).json({ success: false, error: { code: 'BAD_REQUEST', message: 'Unsupported symbol provided.' }});
+    }
 
     const [candles1m, candles5m, candles15m] = await Promise.all([
       getCandles(symbol, '1min', 150),
