@@ -129,8 +129,8 @@ export default function AnalysisPage() {
         return {
           ...base,
           price: parseFloat(data.price),
-          change: data.change || prev.change,
-          changePercent: data.changePercent || prev.changePercent,
+          change: data.change || base.change,
+          changePercent: data.changePercent || base.changePercent,
         };
       });
     });
