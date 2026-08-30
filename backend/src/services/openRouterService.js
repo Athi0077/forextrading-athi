@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const AI_MODEL = process.env.AI_MODEL || 'openai/gpt-4o';
+const OPENROUTER_MAX_TOKENS = parseInt(process.env.OPENROUTER_MAX_TOKENS) || 700;
 
 const SYSTEM_PROMPT = `You are a Forex and XAU/USD market analysis assistant AND a platform support assistant.
 You explain technical market conditions using the structured analysis supplied, AND you answer questions about the platform's Terms and Conditions.
@@ -48,7 +49,7 @@ async function callOpenRouter(messages, marketContext) {
   if (marketContext) {
     formattedMessages.push({
       role: 'system',
-      content: `CURRENT MARKET DATA FOR XAU/USD:\n${JSON.stringify(marketContext, null, 2)}\nUse this data strictly for your reasoning.`
+      content: `CURRENT MARKET DATA FOR XAU/USD:\n${JSON.stringify(marketContext)}\nUse this data strictly for your reasoning.`
     });
   }
 
@@ -67,7 +68,9 @@ async function callOpenRouter(messages, marketContext) {
       {
         model: AI_MODEL,
         messages: formattedMessages,
-        response_format: { type: 'json_object' }
+        response_format: { type: 'json_object' },
+        max_tokens: OPENROUTER_MAX_TOKENS,
+        temperature: 0.3
       },
       {
         headers: {
@@ -86,20 +89,33 @@ async function callOpenRouter(messages, marketContext) {
     }
 
     try {
-      const cleanContent = content.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
+      const cleanContent = content.replace(/```json\s*/ig, '').replace(/```\s*$/g, '').trim();
       return JSON.parse(cleanContent);
     } catch (parseError) {
       console.error('Failed to parse OpenRouter response as JSON:', content);
-      throw new Error('Invalid JSON returned by AI model.');
+      throw new Error('invalid_json');
     }
 
   } catch (error) {
     console.error('OpenRouter API Error:', error.response?.data || error.message);
-    // If it's our own thrown error from the try block, pass it through
-    if (error.message === 'Invalid JSON returned by AI model.' || error.message === 'Empty response from OpenRouter.') {
-      throw error;
+    
+    if (error.message === 'invalid_json') {
+      throw new Error('AI analysis is temporarily unavailable due to a formatting error. Please try again.');
     }
-    throw new Error('AI analysis is temporarily unavailable: ' + (error.response?.data?.error?.message || error.message));
+    
+    if (error.response?.status === 402 || error.response?.data?.error?.code === 402 || (error.response?.data?.error?.message && error.response.data.error.message.includes('insufficient credits'))) {
+      throw new Error('AI analysis is temporarily unavailable because the AI service has insufficient credits. Please try again later.');
+    }
+    
+    if (error.response?.status === 401) {
+      throw new Error('AI analysis is temporarily unavailable due to invalid API configuration.');
+    }
+    
+    if (error.response?.status === 429) {
+      throw new Error('AI analysis is temporarily unavailable due to rate limits. Please try again in a few moments.');
+    }
+
+    throw new Error('AI analysis is temporarily unavailable. Please try again later.');
   }
 }
 
@@ -114,7 +130,9 @@ async function generateChatTitle(firstMessage) {
         messages: [
           { role: 'system', content: 'Generate a very short, 3-4 word title summarizing this user question. Respond ONLY with the title string, no quotes, no extra text.' },
           { role: 'user', content: firstMessage }
-        ]
+        ],
+        max_tokens: 20,
+        temperature: 0.2
       },
       {
         headers: {
