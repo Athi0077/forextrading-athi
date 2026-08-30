@@ -6,6 +6,8 @@ const dashboardController = require('../controllers/admin/dashboardController');
 const userController = require('../controllers/admin/userController');
 const tradeController = require('../controllers/admin/tradeController');
 const settingsController = require('../controllers/admin/settingsController');
+const announcementController = require('../controllers/admin/announcementController');
+const adminAiController = require('../controllers/admin/adminAiController');
 
 // All admin routes must be authenticated and authorized
 router.use(authMiddleware);
@@ -31,14 +33,8 @@ router.get('/trades', tradeController.getAllTrades);
 router.get('/settings', settingsController.getSettings);
 router.post('/settings', settingsController.updateSettings);
 
-// Placeholder routes for Phase 1 - to be implemented fully later if needed
-router.get('/activity', (req, res) => res.json({ success: true, data: [] }));
-router.get('/api-status', (req, res) => res.json({ success: true, data: { status: 'OK' } }));
-router.get('/ai', (req, res) => res.json({ success: true, data: { totalRequests: 0 } }));
-router.get('/subscriptions', (req, res) => res.json({ success: true, data: [] }));
-router.get('/payments', (req, res) => res.json({ success: true, data: [] }));
-router.get('/support', (req, res) => res.json({ success: true, data: [] }));
-const announcementController = require('../controllers/admin/announcementController');
+// Admin AI Assistant
+router.post('/ai/chat', adminAiController.chatWithAdminAi);
 
 // Announcements
 router.get('/announcements', announcementController.getAllAnnouncements);
@@ -46,5 +42,13 @@ router.post('/announcements', announcementController.createAnnouncement);
 router.put('/announcements/:id', announcementController.updateAnnouncement);
 router.put('/announcements/:id/toggle', announcementController.togglePublishStatus);
 router.delete('/announcements/:id', announcementController.deleteAnnouncement);
+
+// Placeholder routes for Phase 1 - to be implemented fully later if needed
+router.get('/activity', (req, res) => res.json({ success: true, data: [] }));
+router.get('/api-status', (req, res) => res.json({ success: true, data: { status: 'OK' } }));
+router.get('/subscriptions', (req, res) => res.json({ success: true, data: [] }));
+router.get('/payments', (req, res) => res.json({ success: true, data: [] }));
+router.get('/support', (req, res) => res.json({ success: true, data: [] }));
+router.get('/ai', (req, res) => res.json({ success: true, data: { totalRequests: 0 } }));
 
 module.exports = router;

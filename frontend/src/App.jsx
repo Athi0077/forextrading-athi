@@ -22,6 +22,8 @@ import AdminTradingActivityPage from './pages/admin/TradingActivityPage';
 import AdminSettingsPage from './pages/admin/SettingsPage';
 import AdminAnnouncementsPage from './pages/admin/AdminAnnouncementsPage';
 
+import AdminAiPage from './pages/admin/AdminAiPage';
+
 function App() {
   return (
     <AuthProvider>
@@ -118,7 +120,7 @@ function App() {
           <Route path="subscriptions" element={<div className="p-8 text-zinc-400">Subscriptions Page (Coming Soon)</div>} />
           <Route path="support" element={<div className="p-8 text-zinc-400">Support Management (Coming Soon)</div>} />
           <Route path="announcements" element={<AdminAnnouncementsPage />} />
-          <Route path="ai" element={<div className="p-8 text-zinc-400">AI Config (Coming Soon)</div>} />
+          <Route path="ai" element={<AdminAiPage />} />
           <Route path="logs" element={<div className="p-8 text-zinc-400">Security Logs (Coming Soon)</div>} />
           <Route path="settings" element={<AdminSettingsPage />} />
         </Route>
