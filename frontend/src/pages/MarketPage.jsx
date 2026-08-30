@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Star, TrendingUp, TrendingDown, Clock, Activity, RefreshCw } from 'lucide-react';
 import socketClient from '../services/socketClient';
 
@@ -14,6 +15,7 @@ const INITIAL_PAIRS = [
 ];
 
 export default function MarketPage() {
+  const navigate = useNavigate();
   const [pairs, setPairs] = useState(
     INITIAL_PAIRS.reduce((acc, pair) => ({ ...acc, [pair.symbol]: pair }), {})
   );
@@ -111,7 +113,11 @@ export default function MarketPage() {
             : 'bg-[#121214] border-zinc-800/50 hover:border-zinc-700';
 
           return (
-            <div key={pair.symbol} className={`rounded-2xl p-5 border transition-all duration-300 ${flashClass}`}>
+            <div 
+              key={pair.symbol} 
+              onClick={() => navigate(`/trade/${pair.symbol.replace('/', '')}`)}
+              className={`rounded-2xl p-5 border transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-purple/10 ${flashClass}`}
+            >
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center space-x-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
@@ -123,7 +129,7 @@ export default function MarketPage() {
                   </div>
                 </div>
                 <button 
-                  onClick={() => toggleFavorite(pair.symbol)}
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(pair.symbol); }}
                   className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-brand-gold bg-brand-gold/10' : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50'}`}
                 >
                   <Star className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />

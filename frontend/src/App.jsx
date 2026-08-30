@@ -10,6 +10,7 @@ import MarketPage from './pages/MarketPage';
 import TradeJournalPage from './pages/TradeJournalPage';
 import PortfolioPage from './pages/PortfolioPage';
 import TradingToolsPage from './pages/TradingToolsPage';
+import TradeChartPage from './pages/TradeChartPage';
 import AiAssistantPage from './pages/AiAssistantPage';
 import SettingsPage from './pages/SettingsPage';
 import SupportPage from './pages/SupportPage';
@@ -78,6 +79,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <TradingToolsPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/trade/:pair" 
+            element={
+              <ProtectedRoute>
+                <TradeChartPage />
               </ProtectedRoute>
             } 
           />
