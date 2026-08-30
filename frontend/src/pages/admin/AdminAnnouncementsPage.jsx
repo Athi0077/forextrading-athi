@@ -10,6 +10,7 @@ export default function AdminAnnouncementsPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isPublished, setIsPublished] = useState(true);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchAnnouncements();
@@ -27,26 +28,47 @@ export default function AdminAnnouncementsPage() {
     }
   };
 
-  const handleCreate = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
 
     try {
       setSaving(true);
-      const res = await apiCall('/admin/announcements', {
-        method: 'POST',
-        body: JSON.stringify({ title, content, isPublished })
-      });
-      setAnnouncements([res.data, ...announcements]);
-      setTitle('');
-      setContent('');
-      setIsPublished(true);
+      if (editingId) {
+        const res = await apiCall(`/admin/announcements/${editingId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ title, content, isPublished })
+        });
+        setAnnouncements(announcements.map(a => a._id === editingId ? res.data : a));
+      } else {
+        const res = await apiCall('/admin/announcements', {
+          method: 'POST',
+          body: JSON.stringify({ title, content, isPublished })
+        });
+        setAnnouncements([res.data, ...announcements]);
+      }
+      handleCancelEdit();
     } catch (error) {
-      console.error('Failed to create announcement:', error);
-      alert('Failed to create announcement');
+      console.error('Failed to save announcement:', error);
+      alert('Failed to save announcement');
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEdit = (announcement) => {
+    setEditingId(announcement._id);
+    setTitle(announcement.title);
+    setContent(announcement.content);
+    setIsPublished(announcement.isPublished);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setTitle('');
+    setContent('');
+    setIsPublished(true);
   };
 
   const handleTogglePublish = async (id, currentStatus) => {
@@ -81,8 +103,20 @@ export default function AdminAnnouncementsPage() {
       </div>
 
       <div className="bg-brand-surface border border-brand-border rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-brand-text mb-4">Create New Announcement</h2>
-        <form onSubmit={handleCreate} className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-brand-text">
+            {editingId ? 'Edit Announcement' : 'Create New Announcement'}
+          </h2>
+          {editingId && (
+            <button 
+              onClick={handleCancelEdit}
+              className="text-sm text-brand-muted hover:text-brand-text transition-colors"
+            >
+              Cancel Edit
+            </button>
+          )}
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-brand-muted mb-1">Title</label>
             <input
@@ -121,8 +155,8 @@ export default function AdminAnnouncementsPage() {
             disabled={saving || !title.trim() || !content.trim()}
             className="flex items-center px-4 py-2 bg-brand-accent text-white rounded-lg hover:bg-brand-accent/90 disabled:opacity-50 transition-colors"
           >
-            {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Plus className="w-5 h-5 mr-2" />}
-            Save Announcement
+            {saving ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : (editingId ? <Edit3 className="w-5 h-5 mr-2" /> : <Plus className="w-5 h-5 mr-2" />)}
+            {editingId ? 'Update Announcement' : 'Save Announcement'}
           </button>
         </form>
       </div>
@@ -153,6 +187,13 @@ export default function AdminAnnouncementsPage() {
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEdit(ann)}
+                    className="p-2 text-brand-muted hover:text-brand-accent rounded-lg hover:bg-brand-accent/10 transition-colors"
+                    title="Edit"
+                  >
+                    <Edit3 className="w-5 h-5" />
+                  </button>
                   <button
                     onClick={() => handleTogglePublish(ann._id, ann.isPublished)}
                     className="p-2 text-brand-muted hover:text-brand-text rounded-lg hover:bg-brand-elevated transition-colors"

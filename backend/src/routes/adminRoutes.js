@@ -43,6 +43,7 @@ const announcementController = require('../controllers/admin/announcementControl
 // Announcements
 router.get('/announcements', announcementController.getAllAnnouncements);
 router.post('/announcements', announcementController.createAnnouncement);
+router.put('/announcements/:id', announcementController.updateAnnouncement);
 router.put('/announcements/:id/toggle', announcementController.togglePublishStatus);
 router.delete('/announcements/:id', announcementController.deleteAnnouncement);
 

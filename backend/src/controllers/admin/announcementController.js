@@ -35,6 +35,33 @@ exports.createAnnouncement = async (req, res) => {
   }
 };
 
+// Update an announcement
+exports.updateAnnouncement = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, content, isPublished } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ success: false, message: 'Title and content are required' });
+    }
+
+    const announcement = await Announcement.findByIdAndUpdate(
+      id,
+      { title, content, isPublished },
+      { new: true, runValidators: true }
+    );
+
+    if (!announcement) {
+      return res.status(404).json({ success: false, message: 'Announcement not found' });
+    }
+
+    res.json({ success: true, data: announcement });
+  } catch (error) {
+    console.error('Error updating announcement:', error);
+    res.status(500).json({ success: false, message: 'Failed to update announcement' });
+  }
+};
+
 // Toggle publish status
 exports.togglePublishStatus = async (req, res) => {
   try {
