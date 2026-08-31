@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, Activity, Maximize2, Settings, BarChart2, Zap, ShieldAlert, Target, Crosshair } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { RefreshCw, Activity, Maximize2, Settings, BarChart2, Zap, ShieldAlert, Target, Crosshair, MessageSquare } from 'lucide-react';
 import CandlestickChart from '../components/Chart/CandlestickChart';
 import { getMarketAnalysis, getMarketCandles, getMarketQuotes } from '../services/marketAnalysis';
 import socketClient from '../services/socketClient';
@@ -14,6 +15,7 @@ export default function AnalysisPage() {
   const [selectedMarket, setSelectedMarket] = useState('EUR/USD');
   const [liveData, setLiveData] = useState(null);
   const [tradeAction, setTradeAction] = useState('BUY');
+  const navigate = useNavigate();
 
   const MARKETS = Object.keys(MARKET_CONFIG);
 
@@ -302,10 +304,35 @@ export default function AnalysisPage() {
         
         {/* Chart Information Panel */}
         <div className="p-4 lg:p-6 border-b border-brand-border">
-          <h3 className="text-sm font-semibold text-brand-text mb-4 flex items-center">
-            <Activity className="w-4 h-4 mr-2 text-brand-purple" />
-            MARKET OVERVIEW
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-brand-text flex items-center">
+              <Activity className="w-4 h-4 mr-2 text-brand-purple" />
+              MARKET OVERVIEW
+            </h3>
+            <button
+              onClick={() => {
+                const marketContext = {
+                  symbol: selectedMarket,
+                  timeframe,
+                  currentPrice: liveData?.price,
+                  change: liveData?.change,
+                  changePercent: liveData?.changePercent,
+                  dayHigh: liveData?.high,
+                  dayLow: liveData?.low,
+                  open: liveData?.open,
+                  previousClose: liveData?.previousClose,
+                  rsi: tfData?.rsi,
+                  macdTrend: tfData?.macd,
+                  emaTrend: tfData?.emaTrend
+                };
+                navigate('/ai', { state: { clientMarketContext: marketContext } });
+              }}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-brand-elevated hover:bg-brand-purple/20 border border-brand-border hover:border-brand-purple/50 text-brand-text text-xs font-semibold rounded-lg transition-colors group"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-brand-purple group-hover:animate-pulse" />
+              <span>Ask ChatGPT</span>
+            </button>
+          </div>
           
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="bg-brand-surface border border-brand-border p-3 rounded-xl">

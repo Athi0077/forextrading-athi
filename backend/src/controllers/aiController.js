@@ -9,7 +9,7 @@ const { generateMultiTimeframeSignal } = require('../services/analysis/signalEng
 
 const processChatMessage = async (req, res, next) => {
   try {
-    const { message, symbol = 'XAU/USD', conversationId } = req.body;
+    const { message, symbol = 'XAU/USD', conversationId, clientMarketContext } = req.body;
     
     const SUPPORTED_SYMBOLS = [
       'EUR/USD',
@@ -77,14 +77,34 @@ const processChatMessage = async (req, res, next) => {
           ...signalData
         };
       }
+      if (clientMarketContext) {
+        if (marketContext) {
+          marketContext.clientData = clientMarketContext;
+        } else {
+          marketContext = {
+            symbol: symbol,
+            clientData: clientMarketContext,
+            currentPrice: clientMarketContext.currentPrice
+          };
+        }
+      }
+
     } catch (error) {
       console.warn(`Could not fetch live market data for ${symbol} AI context:`, error.message);
       
-      return res.json({
-        success: false,
-        signal: "UNAVAILABLE",
-        error: `Live market data for ${symbol} is currently unavailable. ` + error.message
-      });
+      if (clientMarketContext) {
+        marketContext = {
+          symbol: symbol,
+          clientData: clientMarketContext,
+          currentPrice: clientMarketContext.currentPrice
+        };
+      } else {
+        return res.json({
+          success: false,
+          signal: "UNAVAILABLE",
+          error: `Live market data for ${symbol} is currently unavailable. ` + error.message
+        });
+      }
     }
 
     if (!marketContext) {

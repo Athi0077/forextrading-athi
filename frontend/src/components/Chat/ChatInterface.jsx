@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Send, Bot, User, Activity, Plus, History, ArrowLeft, MessageSquare as ChatIcon, Trash2 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { sendChatMessage, getChatHistory, getConversations, deleteConversation } from '../../services/chatService';
@@ -30,7 +31,10 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
   const [isHistoryLoaded, setIsHistoryLoaded] = useState(false);
   const [viewMode, setViewMode] = useState('chat');
   const [conversations, setConversations] = useState([]);
-  const [selectedMarket, setSelectedMarket] = useState('EUR/USD');
+  const location = useLocation();
+  const initialContext = location.state?.clientMarketContext || null;
+  const [selectedMarket, setSelectedMarket] = useState(initialContext?.symbol || 'EUR/USD');
+  const [clientMarketContext, setClientMarketContext] = useState(initialContext);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -44,7 +48,9 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
           setMessages([{
             id: 1,
             role: 'assistant',
-            content: `Hello! I am your Liquiva Assistant. How can I help you analyze ${selectedMarket} today?`,
+            content: clientMarketContext
+              ? `You're currently viewing ${clientMarketContext.symbol} on the ${clientMarketContext.timeframe} timeframe. Ask me anything about this market.`
+              : `Hello! I am your Liquiva Assistant. How can I help you analyze ${selectedMarket} today?`,
             isInitial: true
           }]);
         }
@@ -67,6 +73,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     const newId = timestamp + 'xxxxxxxxxxxxxxxx'.replace(/[x]/g, () => Math.floor(Math.random() * 16).toString(16)).toLowerCase();
     setConversationId(newId);
     setSelectedMarket('EUR/USD');
+    setClientMarketContext(null);
     setViewMode('chat');
     if (onSyncChart) onSyncChart(null);
     if (onPlotChart) onPlotChart(null);
@@ -106,7 +113,7 @@ export default function ChatInterface({ conversationId, setConversationId, onSyn
     if (onPlotChart) onPlotChart(null);
 
     try {
-      const response = await sendChatMessage(text, conversationId, selectedMarket);
+      const response = await sendChatMessage(text, conversationId, selectedMarket, clientMarketContext);
       
       const aiMsg = {
         id: Date.now() + 1,
