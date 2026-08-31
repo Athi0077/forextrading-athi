@@ -1,5 +1,7 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
+const User = require('../models/User');
+const Trade = require('../models/Trade');
 const { callOpenRouter, generateChatTitle } = require('../services/openRouterService');
 const { getCandles } = require('../services/twelveDataService');
 const { analyzeTimeframe } = require('../services/analysis/timeframeAnalysis');
@@ -107,8 +109,46 @@ const processChatMessage = async (req, res, next) => {
 
     aiMessages.push({ role: 'user', content: message });
 
+    // Fetch User Data Context for Trade Journal questions
+    let userDataContext = null;
+    try {
+      const user = await User.findById(req.user.id);
+      const trades = await Trade.find({ userId: req.user.id }).sort({ entryDate: -1 });
+      
+      const closedTrades = trades.filter(t => t.status === 'CLOSED');
+      const totalTrades = closedTrades.length;
+      const totalPnL = closedTrades.reduce((acc, t) => acc + t.pnl, 0);
+      const winningTrades = closedTrades.filter(t => t.pnl > 0).length;
+      const losingTrades = closedTrades.filter(t => t.pnl < 0).length;
+      const winRate = totalTrades > 0 ? ((winningTrades / totalTrades) * 100).toFixed(1) : 0;
+      
+      // Get a summary of the 10 most recent trades
+      const recentTrades = trades.slice(0, 10).map(t => ({
+        pair: t.pair,
+        type: t.type,
+        status: t.status,
+        entryPrice: t.entryPrice,
+        exitPrice: t.exitPrice,
+        pnl: t.pnl,
+        date: t.entryDate
+      }));
+
+      userDataContext = {
+        userName: user?.name,
+        currentBalance: user?.balance || 0,
+        totalTrades,
+        totalPnL,
+        winningTrades,
+        losingTrades,
+        winRate: `${winRate}%`,
+        recentTrades
+      };
+    } catch (err) {
+      console.warn("Could not fetch user trade data for AI context:", err.message);
+    }
+
     // Call AI Service
-    const aiResponse = await callOpenRouter(aiMessages, marketContext);
+    const aiResponse = await callOpenRouter(aiMessages, marketContext, userDataContext);
 
     // Save to DB
     const userMsg = await Message.create({

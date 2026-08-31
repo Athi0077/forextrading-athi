@@ -18,9 +18,9 @@ const MARKETS = [
 const getStarterQuestions = (symbol) => [
   `What's the current ${symbol} trend?`,
   "Should I buy or sell?",
-  "When should I enter?",
-  "What are the support and resistance levels?",
-  "Analyze 1M, 5M and 15M."
+  "What is my total P&L?",
+  "What is my current balance?",
+  "Summarize my recent trades."
 ];
 
 export default function ChatInterface({ conversationId, setConversationId, onSyncChart, onPlotChart }) {

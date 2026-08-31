@@ -5,8 +5,8 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const AI_MODEL = process.env.AI_MODEL || 'openai/gpt-4o';
 const OPENROUTER_MAX_TOKENS = parseInt(process.env.OPENROUTER_MAX_TOKENS) || 700;
 
-const SYSTEM_PROMPT = `You are a Forex market analysis assistant and platform support assistant.
-You explain technical market conditions using the structured analysis supplied, AND you answer questions about the platform's Terms and Conditions.
+const SYSTEM_PROMPT = `You are a Forex market analysis assistant, a platform support assistant, and a Trade Journal assistant.
+You explain technical market conditions using the structured analysis supplied, you answer questions about the platform's Terms and Conditions, and you answer questions about the user's trading performance based on the supplied user trading data.
 
 Rules:
 1. The selected symbol in CURRENT MARKET DATA is the only market you should analyze. Never assume the market is XAU/USD.
@@ -26,11 +26,12 @@ Rules:
    - Trading involves high risk. AI analysis is educational, not financial advice.
    - Prohibited: bots, exploiting APIs, manipulating data, sharing accounts.
    - If an account is blocked or issues arise, users can contact support.
-9. If the user is only asking a general, educational, conversational, or platform-support question, set showTradePlan to false.
-10. If the user explicitly asks for trading analysis, a trading setup, entry timing, BUY/SELL decision, entry price, stop loss, take profit, or asks to analyze the market/timeframes, set showTradePlan to true.
-11. If showTradePlan is false: signal must be WAIT, entry must be null, stopLoss must be null, takeProfit must be null, riskReward must be 0, and answer the user's question naturally in the reason field.
-12. If showTradePlan is true: perform the requested market analysis using the supplied 15M/5M/1M market data, return BUY, SELL, or WAIT based on the analysis, provide entry, stopLoss, takeProfit and riskReward when a valid BUY/SELL setup exists (if WAIT, entry/stopLoss/takeProfit may be null). Never invent prices.
-13. Return your response purely as JSON in the following structure (do NOT wrap in markdown \`\`\`json blocks, just return raw JSON):
+9. If the user asks about their trade journal, total balance, P&L, or recent trades, use the supplied USER TRADING DATA to answer their questions. Keep the tone helpful and encouraging.
+10. If the user is only asking a general, educational, conversational, platform-support, or trade journal question, set showTradePlan to false.
+11. If the user explicitly asks for trading analysis, a trading setup, entry timing, BUY/SELL decision, entry price, stop loss, take profit, or asks to analyze the market/timeframes, set showTradePlan to true.
+12. If showTradePlan is false: signal must be WAIT, entry must be null, stopLoss must be null, takeProfit must be null, riskReward must be 0, and answer the user's question naturally in the reason field.
+13. If showTradePlan is true: perform the requested market analysis using the supplied 15M/5M/1M market data, return BUY, SELL, or WAIT based on the analysis, provide entry, stopLoss, takeProfit and riskReward when a valid BUY/SELL setup exists (if WAIT, entry/stopLoss/takeProfit may be null). Never invent prices.
+14. Return your response purely as JSON in the following structure (do NOT wrap in markdown \`\`\`json blocks, just return raw JSON):
 {
   "symbol": "The symbol you analyzed, e.g. EUR/USD",
   "signal": "BUY | SELL | WAIT",
@@ -45,7 +46,7 @@ Rules:
   "showTradePlan": false
 }`;
 
-async function callOpenRouter(messages, marketContext) {
+async function callOpenRouter(messages, marketContext, userDataContext = null) {
   if (!OPENROUTER_API_KEY) {
     throw new Error('OpenRouter API key is missing.');
   }
@@ -58,6 +59,13 @@ async function callOpenRouter(messages, marketContext) {
     formattedMessages.push({
       role: 'system',
       content: `CURRENT MARKET DATA FOR ${marketContext.symbol}:\n${JSON.stringify(marketContext)}\nUse this data strictly for your reasoning.`
+    });
+  }
+
+  if (userDataContext) {
+    formattedMessages.push({
+      role: 'system',
+      content: `USER TRADING DATA:\n${JSON.stringify(userDataContext)}\nUse this data to answer questions about the user's balance, P&L, and trade history.`
     });
   }
 
@@ -112,7 +120,22 @@ async function callOpenRouter(messages, marketContext) {
     }
     
     if (error.response?.status === 402 || error.response?.data?.error?.code === 402 || (error.response?.data?.error?.message && error.response.data.error.message.includes('insufficient credits'))) {
-      throw new Error('AI analysis is temporarily unavailable because the AI service has insufficient credits. Please try again later.');
+      console.warn("OpenRouter 402 Insufficient Credits - returning MOCK response.");
+      return {
+        symbol: marketContext?.symbol || "Mock Symbol",
+        signal: "WAIT",
+        confidence: 0,
+        entry: null,
+        stopLoss: null,
+        takeProfit: null,
+        riskReward: 0,
+        reason: userDataContext 
+          ? `[MOCK RESPONSE - API Out of Credits] Your trade journal integration works! Your current balance is $${userDataContext.currentBalance} and your total P&L is $${userDataContext.totalPnL}. You have ${userDataContext.totalTrades} closed trades with a win rate of ${userDataContext.winRate}.` 
+          : "[MOCK RESPONSE - API Out of Credits] The AI analysis is temporarily mocked because your OpenRouter API key has insufficient credits.",
+        timeframe: "15M",
+        marketCondition: "Mocked",
+        showTradePlan: false
+      };
     }
     
     if (error.response?.status === 401) {
