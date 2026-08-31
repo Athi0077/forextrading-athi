@@ -2,12 +2,13 @@ import { apiCall } from './api';
 
 export const getMarketAnalysis = async (symbol) => {
   try {
-    const result = await apiCall(`/analysis?symbol=${encodeURIComponent(symbol)}`, {
+    const query = symbol ? `?symbol=${encodeURIComponent(symbol)}` : '';
+    const result = await apiCall(`/analysis${query}`, {
       method: 'GET'
     });
     return result.data;
   } catch (error) {
-    console.error(`Error fetching analysis for ${symbol}:`, error);
+    console.error(`Error fetching analysis${symbol ? ` for ${symbol}` : ''}:`, error);
     throw error;
   }
 };
